@@ -1,0 +1,33 @@
+# build and scratch
+.build/
+__pycache__/
+*.pyc
+.superpowers/
+.DS_Store
+*.log
+result.json
+
+# trim-kit-case: publish only the v5 case. The rest (v4 remix, older designs, superseded
+# tests, third-party models in ref/) stays on the local disk.
+trim-kit-case/*
+!trim-kit-case/trim_case.scad
+!trim-kit-case/Makefile
+!trim-kit-case/DESIGN.md
+!trim-kit-case/pack_2color.py
+!trim-kit-case/pack_plate.py
+!trim-kit-case/print_profile.py
+!trim-kit-case/trim_case_print.3mf
+!trim-kit-case/trim_case_body_2color.3mf
+!trim-kit-case/trim_case_lid_2color.3mf
+!trim-kit-case/trim_case_body.stl
+!trim-kit-case/trim_case_lid.stl
+!trim-kit-case/trim_case_keyhole_test.3mf
+!trim-kit-case/trim_case_clip_test_0.3.stl
+!trim-kit-case/trim_case_hinge_test_body.stl
+!trim-kit-case/trim_case_hinge_test_lid.stl
+!trim-kit-case/docs/
+trim-kit-case/docs/*
+!trim-kit-case/docs/2026-11-18-roomy-rebuild-design.md
+!trim-kit-case/ref/
+trim-kit-case/ref/*
+!trim-kit-case/ref/README.md
