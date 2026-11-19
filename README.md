@@ -5,12 +5,12 @@ Designed and printed on a Bambu Lab P2S (0.4 mm nozzle, AMS).
 
 ## Projects
 
-| Project | What it is | Print this |
-|---|---|---|
-| [trim-kit-case](trim-kit-case/) | Hinged case for the Bambu Lab trimming tool kit: 10 snap-in blade seats, a handle clip, a hidden hinge stop that lets it stand open, a magnet latch and two-colour inlays. | `trim_case_print.3mf` (body and lid on one plate, P2S / PETG Matte settings included) |
-| [lens-wipe-box](lens-wipe-box/) | Desk dispenser tower for individually wrapped lens wipes (plus an earlier box). You pull the bottom wipe out of the front. | `lens_wipe_tower.stl`, `lens_wipe_tower_lid.stl`, `lens_wipe_tower_weight.stl`, `lens_wipe_tower_weight_cover.stl` |
+| | Project | What it is | Print this |
+|---|---|---|---|
+| <img src="trim-kit-case/img/closed.png" width="220"> | [trim-kit-case](trim-kit-case/) | Hinged case for the Bambu Lab trimming tool kit: 10 snap-in blade seats, a handle clip, a hidden hinge stop that lets it stand open, a magnet latch and two-colour inlays. | `trim_case_print.3mf` (body and lid on one plate, P2S / PETG Matte settings included) |
+| <img src="lens-wipe-box/img/tower.png" width="140"> | [lens-wipe-box](lens-wipe-box/) | Desk dispenser tower for individually wrapped lens wipes (plus an earlier box). You pull the bottom wipe out of the front. | `lens_wipe_tower.stl`, `lens_wipe_tower_lid.stl`, `lens_wipe_tower_weight.stl`, `lens_wipe_tower_weight_cover.stl` |
 
-Each project folder has a `DESIGN.md` (intent, decisions, fit-test results) and a `Makefile`.
+Each project folder has a `README.md` (pictures, printing, hardware), a `DESIGN.md` (intent, decisions, fit-test results) and a `Makefile`.
 
 ## Printing
 

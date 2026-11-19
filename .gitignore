@@ -11,6 +11,9 @@ result.json
 # tests, third-party models in ref/) stays on the local disk.
 trim-kit-case/*
 !trim-kit-case/trim_case.scad
+!trim-kit-case/render.scad
+!trim-kit-case/README.md
+!trim-kit-case/img/
 !trim-kit-case/Makefile
 !trim-kit-case/DESIGN.md
 !trim-kit-case/pack_2color.py

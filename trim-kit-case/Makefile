@@ -4,6 +4,7 @@ BAMBU ?= /Applications/BambuStudio.app/Contents/MacOS/BambuStudio
 
 # Trimming-kit case, v5 (trim_case.scad). `make` builds the print file and the halves.
 all: trim_case_print.3mf trim_case_body_2color.3mf trim_case_lid_2color.3mf
+images: img/closed.png img/open.png img/stand.png
 tests: trim_case_keyhole_test.3mf trim_case_clip_test_0.3.stl trim_case_hinge_test_body.stl trim_case_hinge_test_lid.stl
 
 # Clip test with a given squeeze (mm per side), labelled on its back
@@ -39,6 +40,18 @@ trim_case_print.3mf: trim_case_body.stl trim_case_lid.stl .build/v5_body_inlays.
 trim_case_keyhole_test.3mf: trim_case_keyhole_test.stl pack_plate.py pack_2color.py
 	python3 pack_plate.py $@ "keyhole_test=trim_case_keyhole_test.stl@1"
 
+# README images (render.scad: two-colour look, blades and handle in place)
+IMG = $(O) --colorscheme=Tomorrow --viewall --autocenter
+img/closed.png: render.scad trim_case.scad
+	mkdir -p img
+	$(IMG) -D 'view="closed"' --camera=0,0,0,60,0,35,0 --imgsize=1200,800 -o $@ $<
+img/open.png: render.scad trim_case.scad
+	mkdir -p img
+	$(IMG) -D 'view="open"' --camera=0,0,0,40,0,20,0 --imgsize=1200,1000 -o $@ $<
+img/stand.png: render.scad trim_case.scad
+	mkdir -p img
+	$(IMG) -D 'view="stand"' --camera=0,0,0,70,0,330,0 --imgsize=1200,900 -o $@ $<
+
 # Closed halves must overlap only on the parting seam (z = 17)
 check: trim_case.scad
 	mkdir -p .build
@@ -48,4 +61,4 @@ clean:
 	rm -rf .build trim_case_*_combined.stl
 
 .PRECIOUS: trim_case_%.stl
-.PHONY: all tests check clean
+.PHONY: all images tests check clean
