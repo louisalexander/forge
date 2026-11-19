@@ -5,8 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Repo rules
 
 - **Keep `README.md` current.** It is the public front page. Whenever a project is added, renamed or removed, or its main print file, build command or requirements change, update the projects table and the build section in the same change.
-- **Each project has its own `README.md`.** It covers pictures, what the project is, how to print it, the hardware and the fit tests. Keep it current the same way: when you change parts, print files, hardware or fitted values, update it in the same change.
-- **README images come from the source.** Each project's `render.scad` and `make images` produce `img/*.png`. After a design change that shows in the pictures, re-run `make images` and commit the PNGs with the change. Renders need `--render` or explicit `color()` on everything: the quick preview mode paints cut faces orange or yellow.
+- **ALWAYS give every project preview images and its own `README.md` that shows them.** No exceptions: this applies to every new project and every design change, with no need to ask first.
+  - Each project folder has a `render.scad` and a `make images` target that render preview PNGs into `img/` straight from the source. Never use screenshots or hand-made images.
+  - The project `README.md` embeds those PNGs at the top, then covers what the project is, how to print it, the hardware and the fit tests.
+  - When starting a project, set up `render.scad`, `make images`, `img/*.png` and the README before calling it done, and add a thumbnail row to the root README.
+  - Whenever a change alters the geometry, re-run `make images` and update the README in the same change, then commit the PNGs with the `.scad` change. Fresh images and an up-to-date README are part of "done".
+  - Look at each rendered PNG before committing it, and check that it shows the current design clearly. Renders need `--render` or an explicit `color()` on every part: the quick preview mode paints cut faces orange or yellow.
 - **Public repo, non-commercial licence** (CC BY-NC-SA 4.0, see `LICENSE`). New projects fall under it, so don't add a separate licence per project.
 - **Never commit third-party material:** other people's models (for example `trim-kit-case/ref/*`), meshes derived from them, or brand logo source files. They stay on the local disk.
 - **`trim-kit-case/` is whitelisted in `.gitignore`.** Only the files listed there are tracked. To publish a new file from that folder, add a `!` line for it. The folder also holds local-only history: v4 `deburr_case.scad`, `Makefile.v4`, `DESIGN-v4.md` and older designs. Don't publish these.
