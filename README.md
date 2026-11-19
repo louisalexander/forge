@@ -1,11 +1,42 @@
 # forge
 
-3D-printing projects: OpenSCAD sources, build scripts, and print-ready STL / 3MF files.
-Printed on a Bambu Lab P2S (0.4 nozzle, AMS).
+Parametric 3D-printing projects: OpenSCAD sources, build scripts, and print-ready STL / 3MF files.
+Designed and printed on a Bambu Lab P2S (0.4 mm nozzle, AMS).
 
-| Project | What it is |
-|---|---|
-| [trim-kit-case](trim-kit-case/) | Hinged case for the Bambu trimming tool kit: 10 snap-in blade seats, a handle clip, a magnet latch and two-colour inlays. `trim_case.scad` is v5; `trim_case_print.3mf` is the print file. |
-| [lens-wipe-box](lens-wipe-box/) | Lens-wipe box and tower. |
+## Projects
 
-Each project has its own `Makefile` and `DESIGN.md`. STL and 3MF files are stored with Git LFS.
+| Project | What it is | Print this |
+|---|---|---|
+| [trim-kit-case](trim-kit-case/) | Hinged case for the Bambu Lab trimming tool kit: 10 snap-in blade seats, a handle clip, a hidden hinge stop that lets it stand open, a magnet latch and two-colour inlays. | `trim_case_print.3mf` (body and lid on one plate, P2S / PETG Matte settings included) |
+| [lens-wipe-box](lens-wipe-box/) | Desk dispenser tower for individually wrapped lens wipes (plus an earlier box). You pull the bottom wipe out of the front. | `lens_wipe_tower.stl`, `lens_wipe_tower_lid.stl`, `lens_wipe_tower_weight.stl`, `lens_wipe_tower_weight_cover.stl` |
+
+Each project folder has a `DESIGN.md` (intent, decisions, fit-test results) and a `Makefile`.
+
+## Printing
+
+Download the 3MF or STL from the project folder and open it in Bambu Studio (or any slicer).
+Each project has small fit-test pieces. Print them first if your printer or filament differs from
+the one these were tuned on.
+
+STL and 3MF files are stored with [Git LFS](https://git-lfs.com). To clone them, run
+`git lfs install` once before `git clone`. Downloading single files from the GitHub web page works without it.
+
+## Building from source
+
+Requirements:
+- [OpenSCAD](https://openscad.org) 2025 or later, with the manifold backend.
+- Python 3.
+- Bambu Studio, only for `trim-kit-case`'s print file.
+
+```sh
+cd trim-kit-case && make          # print file and two-colour halves
+cd trim-kit-case && make tests    # fit-test pieces
+cd lens-wipe-box && make
+```
+
+## License
+
+[CC BY-NC-SA 4.0](LICENSE): free to print, share and remix for **non-commercial** use, with
+credit, and remixes must use the same licence. **No commercial use** (selling prints, files or kits,
+or using the designs in a product) without a separate licence from the author. For commercial
+licensing, contact [@louisalexander](https://github.com/louisalexander).
