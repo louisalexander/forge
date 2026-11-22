@@ -40,3 +40,14 @@ shape the model.
 
 Moved from the private repo, with its checks (`tests/`, pytest). `part = "none"` was added so `render.scad`
 can draw its own coloured views.
+
+## 2026-11-21: measurements confirmed, design locked
+
+The owner confirmed every `[OWNER]` measurement against the real parts, and locked the design. Final values:
+- `shaft_d = 6.0`, `shaft_flat = 4.5`, `bore_depth = 7.5`
+- `shaft_above_board = 22`, `enc_body_h = 6.5`, `bushing_d = 7`, `bushing_h = 5`
+- `board_hole_d = 2.7`, `board_back_h = 3.5`
+
+The build uses `wiring = "qt"` (a STEMMA QT cable), `board_spin = 0` and `connector = "pigtail"`. Placement is
+`knob_out = 20`, `knob_down = 29.5`. The mock-up is now optional, only for a different desk or placement.
+

@@ -12,6 +12,9 @@ NeoPixel's light reaches it through a white light cup and a translucent diffuser
 colour shows at its base, inside a rose gold ring. The round head replaced a first,
 boxy housing. Design decisions: [`DESIGN.md`](DESIGN.md).
 
+**Status: final.** Every measurement is confirmed against the real parts and the design is locked
+(2026-11-21). The STLs here are the ones to print.
+
 Model: `desk_dial_knob_housing.scad`. Re-export with `make`, check with `make test` (pytest), re-render the
 pictures with `make images`. It pairs with [`desk-dial-pod`](../desk-dial-pod/): the pod's cable carries the
 other half of the pigtail.
@@ -37,7 +40,7 @@ onto its print face.
 
 | Plate | Objects (`desk_dial_kh_*.stl`) | Filament (AMS) |
 |---|---|---|
-| 0 · mock-up | `mockup` | anything, 0.28 mm, face down. Print it first and tape it up to check the fit |
+| 0 · mock-up (optional) | `mockup` | anything, 0.28 mm, face down. Only needed to try a different desk or placement |
 | 1 · charcoal | `body` + `accent_ring` **as one object**, plus `back_cap`, `cable_clip`, `mockup_knob_body` | charcoal PLA, rose gold PLA for the ring |
 | 2 · white | `light_cup` | matte white PETG (or ivory PLA) |
 | 3 · clear | `diffuser_ring` + `mockup_knob_floor` | translucent PETG only |
@@ -78,28 +81,33 @@ filament change, clear to black, and no black can bleed into the clear.
 **Never put PETG and PLA in the same object.** They also shouldn't share a plate: they need different
 temperatures.
 
-## Before printing: measure (every `[OWNER] caliper` in the `.scad`)
+## Final dimensions (confirmed)
 
-- **The shaft:** `shaft_d`, `shaft_flat`, the D-flat's length (≥ `bore_depth` 7.5), and
-  **`shaft_above_board`** (board front → shaft tip, 22 assumed). It sets how deep the board sits, and so how
-  deep the head is (≈66 mm below the desk at 22). The model refuses a shaft that's too short for the light
-  cup, or one whose bushing would hit the knob.
-- `enc_body_h`, `bushing_d`, `bushing_h`; `board_hole_d`.
-- **`board_back_h`** (3.5 assumed): the tallest thing on the board's **back**. The two STEMMA QT sockets are
-  about 2.9 mm, and the encoder's soldered pins may stick out further. Clip the pins if they're longer. The
-  cup has a relief under the board, so the back gets 3.5 mm of room.
-- **The connector: a JST-SM 4-pin pigtail pair** (the latching LED-strip kind, 2.5 mm contacts, 22 AWG
-  leads). The female pigtail goes in the housing; solder the male half to the pod's 24/4 cable. It's far
-  sturdier than STEMMA QT, but it's a dangling joint, so the zip tie and the cable clip take every tug.
-  Want a wall socket instead? `connector = "m8"` (M8 4-pin, ~31 × 20 × 14 block) or `"gx12"` brings the
-  connector block back (then also export and print `block_cover`).
+These are measured off the real parts and locked in the model. Change one only for different hardware, then
+re-export with `make` and run `make test`.
 
-## Placement: print the mock-up first
+| What | Parameter | Value |
+|---|---|---|
+| Shaft diameter | `shaft_d` | 6.0 mm |
+| Shaft, flat face to the round side opposite | `shaft_flat` | 4.5 mm |
+| Knob bore depth (≤ the shaft's D-flat length) | `bore_depth` | 7.5 mm |
+| Board front to shaft tip | `shaft_above_board` | 22 mm |
+| Board front to the top of the encoder body | `enc_body_h` | 6.5 mm |
+| Threaded bushing | `bushing_d` × `bushing_h` | 7 × 5 mm |
+| Board mounting holes (M2.5) | `board_hole_d` | 2.7 mm |
+| Tallest part on the board's back (STEMMA QT sockets ~2.9, the clipped encoder pins) | `board_back_h` | 3.5 mm |
+| Wiring | `wiring` | `"qt"`: a STEMMA QT cable in a side socket |
+| Board orientation | `board_spin` | 0: the NeoPixel toward the chair |
+| Connector out of the plate | `connector` | `"pigtail"`: a JST-SM 4-pin pigtail pair |
 
-`knob_out` / `knob_down` (20 / 29.5) place the knob's centre past the desk's front edge and below its
-underside. Any pair works as long as there's ≥ 15 mm (`finger_room`) between the knurl and the desk
-corner for a pinch. The checks run at 20 / 29.5 (≈39 mm past the edge, ≈66 below at the head's back
-rim) and at 30 / 19.5 (≈49 past, ≈56 below). Tape the mock-up up, sit down, and pick.
+At `shaft_above_board = 22` the head's back rim sits about 66 mm below the desk.
+
+## Placement (final)
+
+The knob's centre is `knob_out = 20` mm past the desk's front edge and `knob_down = 29.5` mm below its
+underside (about 39 mm past the edge, about 66 mm below at the head's back rim). That leaves the 15 mm pinch
+room (`finger_room`) between the knurl and the desk corner. The checks also cover a second placement,
+30 / 19.5, for a different desk.
 
 ## Assemble
 
@@ -109,26 +117,24 @@ rim) and at 30 / 19.5 (≈49 past, ≈56 below). Tape the mock-up up, sit down, 
    underside (behind the tie bar), along the plate and down the neck, until they come out of the head's open
    back. Zip-tie the leads to the bar under the plate (a 3.6 mm tie through its tunnel), leaving the plug
    about 10 cm past the plate's back.
-3. **Wire the board, then screw it down.** (Soldered wiring, `wiring = "solder"`.) The 5880's pads run along one edge: **VIN · 3V · GND · SCL · SDA ·
+3. **Wire the board with a STEMMA QT cable** (`wiring = "qt"`, the final design). The board's two QT
+   sockets sit mid-edge on its back, on the left and right edges. Plug the cable into either one and lay the
+   board on the posts with the NeoPixel **toward the chair** (`board_spin = 0`). The plug drops into the pocket
+   at that side's edge, and the cable goes straight back through the hole there. Behind the cup, bundle the
+   four wires 2 × 2 and press them into the T-shaped groove in the plug's face: straight across the middle to
+   the centre, then straight up the middle into the neck groove. Keep the QT plug in the head and feed the
+   cable's **other** end down the neck: the plug won't pass the ø4.4 channel. Screw the board down **from the
+   front** (4 × M2.5 × 6). The heads hold the board, so pulling the knob can't move it. White nylon or
+   low-profile heads keep the glow even.
+
+   **Alternative, soldered wiring** (`wiring = "solder"`, then re-export: that cup has a pad slot and no side
+   pockets). The 5880's pads run along one edge: **VIN · 3V · GND · SCL · SDA ·
    INT**. Use the middle four, and leave VIN and INT empty. Push the leads through the cup's slot from behind
    (the slot is on the neck side), then solder them into **3V / GND / SCL / SDA** from the board's back, so
    each lead drops straight off its pad into the slot. Lay the board on the posts with that pad edge over the
    slot. The NeoPixel ends up on the opposite edge, toward the chair, away from the wires. Screw it down
    **from the front** (4 × M2.5 × 6), drawing the slack back through the slot. The heads hold the board, so
    pulling the knob can't move it. White nylon or low-profile heads keep the glow even.
-
-   **Or plug in a STEMMA QT cable instead of soldering** (what the first build did). The board's two QT
-   sockets sit mid-edge on its back, on the left and right edges (a quarter turn from the pads). Plug the
-   cable into either one and lay the board on the posts with the NeoPixel **toward the chair**
-   (`board_spin = 0`, the default) or **toward the neck** (`180`). The plug drops into the pocket at that
-   side's edge, and the cable goes straight back through the hole there. Behind the cup, bundle the four
-   wires 2 × 2 and press them into the T-shaped groove in the plug's face: straight across the middle to
-   the centre, then straight up the middle into the neck groove. It's straight, the same teardrop as the neck groove, so
-   it prints plug down with no long bridges. The cup is
-   solid on the neck side: `wiring = "qt"` is the default. Soldering to the pads instead? Set
-   `wiring = "solder"` and re-export; that cup has the pad slot and no side pockets. Keep
-   the QT plug in the head and feed the cable's **other** end down the neck: the plug won't pass the ø4.4
-   channel.
 4. Push the diffuser's front disc into the face hole from inside, until its lip sits in the pocket behind the
    face. Slide the cup (with the board) in from the back along the knob's axis, shaft through the diffuser.
    The three bosses centre it. Lay the leads in the groove in the plug on its back. It runs straight out to
@@ -148,9 +154,8 @@ rim) and at 30 / 19.5 (≈49 past, ≈56 below). Tape the mock-up up, sit down, 
 Clean the desk's underside with isopropyl. Cover the plate's top with nano gel tape, press it up for 30 s,
 and let it settle for an hour before using the knob.
 
-**Test the tape on the mock-up first.** Pressing the knob levers the plate's front edge away from the desk:
-a 10 N press is about 400 N·mm of peel there. Tape the mock-up up and hang about 1.5 kg from where the knob
-sits, for a day. If it creeps or peels, use 3M VHB tape instead (it's removable with floss and heat, but
+**About the tape:** pressing the knob levers the plate's front edge away from the desk:
+a 10 N press is about 400 N·mm of peel there. If the gel tape ever creeps or peels, use 3M VHB tape instead (it's removable with floss and heat, but
 not reusable). Plug the pigtails together, then stick the cable clip
 just behind the plug on the pod's side and press the cable into it, so the cable's weight never hangs on the
 joint or the housing.
