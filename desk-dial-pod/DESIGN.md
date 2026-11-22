@@ -28,3 +28,20 @@ decisions that shape the model.
 
 Moved from the private repo, with its checks (`tests/`, pytest). `part = "none"` was added so `render.scad`
 can draw its own coloured views.
+
+## 2026-11-21: measurements confirmed, design locked
+
+The owner confirmed every measurement against the real parts and locked the design, with the fits tuned on the
+coupons. Final values:
+- display: front of glass → board front 4.8, standoff tops 8.3, USB-C centre 16.57, deepest 18.0
+- `usb_mouth_bx = -21.0`
+- adapter: `adp_plug_to_socket = 21`, `adp_w = 18.5`, `adp_t = 8.1`, `adp_t_front = 3.5`,
+  `adp_socket_x = 12.0`, `adp_above_plug = 1.5`, `adp_fit = 0.35`, `adp_cap_gap = 0.4`
+- `socket_recess = 1.5`
+- desk cable: `desk_plug_w/t/len = 13/7/15`, `usb_cable_d = 4.5`
+- `pcb_t = 1.2`, `edge_thickness = 5.65`, strip 19 × 70 × 1.6, `pod_depth = 25.6`
+- fits: `board_seat_d = 44.1`, `seat_rib_d = 43.1`, `seat_len = 4`, `slide_clearance = 0.25`, `edge_gap = 1.0`,
+  `i2c_snap_w = 3.6`, `i2c_grip = 0.2`
+
+The coupons are now optional, only for re-tuning on different hardware.
+

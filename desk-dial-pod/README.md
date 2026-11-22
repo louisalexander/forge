@@ -27,6 +27,9 @@ selector mirrors every part. A left part is the mirror image of a right one. Tur
 doesn't give you the other side: upside down, the slot's closed end is at the bottom and the pod
 slides off the rail. For a right-edge pod, export with `-D 'side="right"'`.
 
+**Status: final.** Every measurement is confirmed against the real parts, every fit is tuned, and the design
+is locked (2026-11-21). The STLs here are the ones to print.
+
 ## Looks
 
 Set at the top of the `.scad` under "Looks":
@@ -62,50 +65,38 @@ pocket, socket opening and I2C groove are all in the root. The I2C cable is sque
 (that is the grip), the model refuses a groove as wide as the cable, and the two cables lie side by
 side in the clip without touching each other, the bracket or the pod.
 
-## Before the final print: measure
+## Final dimensions (confirmed)
 
-Calipers on the real parts, then set these at the top of the `.scad` and re-export:
+Measured off the real parts and locked in the model. Change one only for different hardware, then
+re-export with `make` and run `make test`.
 
-Already measured (owner, 2026-11-03), all from the **front of the glass**: PCB ø42.98, glass ø43,
-board front 4.8, standoff tops 8.3, coin-cell holder top 7.8, USB-C centre 16.57, deepest point
-(USB-C shell) 18.0. Screw positions come from Seeed's v1.1 board file and match the measured
-triangle. Still to measure:
+**The display** (owner, all from the **front of the glass**): PCB ø42.98, glass ø43, board front 4.8,
+standoff tops 8.3, coin-cell holder top 7.8, USB-C centre 16.57, deepest point (the USB-C shell) 18.0. The
+screw positions come from Seeed's v1.1 board file and match the measured triangle.
 
-- `usb_mouth_bx`: where the XIAO's USB-C opening sits. The model puts it 21.0 mm from the board's
-  centre (an estimate from the XIAO drawing); measure from the board's centre to the opening.
-- **The right-angle USB-C adapter** (male → female) that plugs into the XIAO. Buy the **side-bend**
-  kind ("left/right angle"): it bends within the plug's flat plane, so with the plug pointing at the
-  monitor the socket points at the floor. An "up/down" one points it at the monitor's back. Measure
-  the block the plug comes out of:
-  - `adp_plug_to_socket`: from the male plug's **outer edge** to the socket face: **21, measured**
-    (2026-11-12: the socket stood 1 mm below the cap's tab with the first guess of 20). This is the one
-    that places the socket.
-  - Fit after the first test fit (2026-11-12): `adp_fit` 0.35 per side (0.15 jammed), `adp_cap_gap`
-    0.4 behind the block, and more room where the plug leaves the XIAO (the adapter's collar sat on
-    the cap's step). The cable opening is now 14 × 8 mm (`desk_plug_*`); 8 mm is the most that keeps a
-    wall to the dovetail slot in front of it.
-  - `adp_above_plug`: how far the block reaches past that outer edge (1.5 assumed)
-  - `adp_w`: across the block, along the plug: **18.5, measured** (owner, 2026-11-12: 6 mm longer
-    than the 12.5 first assumed)
-  - `adp_socket_x`: from the plug's mouth (the XIAO edge) to the socket's **centre**: **12.0,
-    derived** (2026-11-13). The socket is not in the middle of the block, so an opening centred on
-    the block left a 4.65 mm gap on the socket's mouth side and hid its far edge behind the wall.
-    The cable opening is centred on this. The I2C cable now hangs straight down past the desk
-    cable's grip before it swings into the clip.
-  - `adp_t`: the block's thickness: **8.1, measured** (2026-11-12: 1.1 mm more than the 7 assumed,
-    all on the back/cap side; `adp_t_front` = 3.5 keeps its front where it was). The pod got 1.1 mm
-    deeper (`pod_depth` 25.6) so the cap's tab over it stays about 3 mm thick
-- `socket_recess`: how far up inside the pod's bottom the socket sits (1.5). The root's bottom rises
-  to meet the socket, so a short adapter doesn't leave the socket deep inside the pod.
-- **The desk cable's plug**, the moulded grip that goes up into the pod: `desk_plug_w` /
-  `desk_plug_t` / `desk_plug_len` (13 × 7 × 15 assumed), and `usb_cable_d` (4.5 assumed). If the
-  grip is narrower or thinner than the adapter block, the opening under the socket shrinks to the
-  grip and the step that's left holds the adapter in when you unplug. With the estimates there's no
-  step, so the cap's clamp holds it.
-- `pcb_t`: the PCB's thickness (1.2 assumed; it only places the coin-cell holder)
-- `edge_thickness`: the monitor depth at the edge is 5.65. Also check it about **30 mm in** from
-  the edge, where the bracket sits. If it's deeper there, the bracket will rock on the strip.
-- `strip_w` / `strip_l` / `strip_t`: the Command strip pad you'll use (19 × 70 × 1.6 assumed)
+| What | Parameter | Value |
+|---|---|---|
+| The XIAO's USB-C opening, from the board's centre | `usb_mouth_bx` | 21.0 mm |
+| Right-angle (side-bend) USB-C adapter: plug's outer edge to the socket face | `adp_plug_to_socket` | 21 mm |
+| Adapter block, across (along the plug) / thickness / front part | `adp_w` / `adp_t` / `adp_t_front` | 18.5 / 8.1 / 3.5 mm |
+| Adapter: plug mouth to the socket's centre | `adp_socket_x` | 12.0 mm |
+| Adapter: how far the block reaches past the plug's edge | `adp_above_plug` | 1.5 mm |
+| Adapter fit, per side / gap behind it to the cap | `adp_fit` / `adp_cap_gap` | 0.35 / 0.4 mm |
+| How far up inside the pod's bottom the socket sits | `socket_recess` | 1.5 mm |
+| The desk cable's moulded plug / cable | `desk_plug_w` × `desk_plug_t` × `desk_plug_len` / `usb_cable_d` | 13 × 7 × 15 / ø4.5 mm |
+| PCB thickness | `pcb_t` | 1.2 mm |
+| Monitor depth at its edge | `edge_thickness` | 5.65 mm |
+| Command strip pad | `strip_w` × `strip_l` × `strip_t` | 19 × 70 × 1.6 mm |
+| Pod depth | `pod_depth` | 25.6 mm |
+
+**Tuned fits** (from the coupons, locked):
+
+| Fit | Parameter | Value |
+|---|---|---|
+| Screen seat band / crush-rib circle | `board_seat_d` / `seat_rib_d` | ø44.1 / ø43.1 (six ribs), `seat_len` 4 mm |
+| Pod on the bracket's dovetail rail | `slide_clearance` | 0.25 mm |
+| Lip to the monitor's side frame | `edge_gap` | 1.0 mm |
+| I2C cable groove: entry / squeeze on the jacket | `i2c_snap_w` / `i2c_grip` | 3.6 / 0.2 mm |
 
 ## Print (Bambu Studio, P2S)
 
@@ -129,11 +120,17 @@ triangle. Still to measure:
   Those supports touch the slot's sliding faces, so clean them and re-check the slide.
 - **Cap and bracket:** 0.20 mm layers. Print the cap flat side down. Print the bracket with its
   strip pocket facing up.
-- **Coupon:** 0.20 mm, about an hour. Print it first. It holds five pieces: in Bambu Studio use
+- **Coupons (optional):** only to re-tune the fits for a different printer, filament or hardware. 0.20 mm,
+  about an hour. The fit coupon holds five pieces: in Bambu Studio use
   *Split to objects*, then lay each one on its flat face. The face ring goes face down (like the
   pod), the cap goes with its back down, the socket block with its open back up.
 
-## Tune the cable fittings
+## Fit tests (optional)
+
+The fits above are tuned and locked. These steps are only for re-tuning them on a different printer, filament
+or hardware.
+
+### The cable fittings
 
 Print `desk_dial_fittings_coupon.stl` (0.20 mm, two pieces: in Bambu Studio use *Split to
 objects*; the socket block already stands on its cut top, lay the clip piece like the bracket).
@@ -147,7 +144,7 @@ objects*; the socket block already stands on its cut top, lay the clip piece lik
 3. **Clip:** press both cables into the clip side by side, USB-C on the monitor side. Both should
    go in and stay without kinking.
 
-## Tune with the coupon
+### The fit coupon
 
 1. Press the lip piece against the monitor's left edge. It should sit snug against the side
    frame and never touch the glass. Adjust `edge_gap` if needed.
@@ -163,14 +160,14 @@ objects*; the socket block already stands on its cut top, lay the clip piece lik
    screen: six **crush ribs** stand out of it, their tips on the ø43.1 circle (`seat_rib_d`) round the
    window centre, so they centre the screen exactly while only their narrow tips grip. Loose: lower
    `seat_rib_d` by 0.05. Won't go in, or too hard to get out: raise it. Screen off-centre in the window: the board's
-   position in the model is off, so tell Claude which way.
+   position in the model is off; move it the other way.
 4. Screw the display onto the **cap**: three M2 × 14 pan-head screws from the cap's back into the
    brass standoffs. Each post should land flat on its standoff, the screws should bite without
    bottoming out, and nothing on the board (coin-cell holder, XIAO) should touch the cap. A gap
    between a post and its standoff, or a screw that spins without pulling tight, means a depth is
    off: re-measure standoff and glass depths.
 5. Drop the USB-C adapter into the **socket block** from its open back, plug pointing at the
-   cut-off end, socket down. It should be snug with no rattle (`adp_fit`, 0.15). Plug the desk
+   cut-off end, socket down. It should be snug with no rattle (`adp_fit`, 0.35 per side). Plug the desk
    cable up into it from below: it should go fully home without the adapter lifting, and come out
    without the adapter following it.
 6. Re-export and re-run the tests. Repeat until it fits.
