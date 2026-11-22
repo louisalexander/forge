@@ -29,6 +29,16 @@ decisions that shape the model.
 Moved from the private repo, with its checks (`tests/`, pytest). `part = "none"` was added so `render.scad`
 can draw its own coloured views.
 
+## 2026-11-21: print file rebuilt, easy-release supports on the cap
+
+`make print` rebuilds the STLs (now binary) and packs `desk_dial_pod.3mf` with `pack_plate.py` (from
+trim-kit-case, extended with per-object settings after a `;`). It embeds the owner's P2S profile
+(`print_settings.config`, taken from the previous 3MF). The cap overrides the project's tree supports so they
+peel off easily: `support_style = tree_organic`, `tree_support_tip_diameter = 0.6` (was 0.8),
+`support_object_xy_distance = 0.6` (was 0.35), `support_interface_spacing = 0.8` (was 0.5),
+`support_top_z_distance = 0.3`. Verified with the Bambu Studio CLI: it slices (about 2 h 58 min). Against the
+same plate without the overrides, the support interface sections drop from 53 to 19.
+
 ## 2026-11-21: measurements confirmed, design locked
 
 The owner confirmed every measurement against the real parts and locked the design, with the fits tuned on the

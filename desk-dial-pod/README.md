@@ -100,6 +100,15 @@ screw positions come from Seeed's v1.1 board file and match the measured triangl
 
 ## Print (Bambu Studio, P2S)
 
+**The print file: `desk_dial_pod.3mf`.** One plate with the round piece (body + rose gold accent ring, as one
+two-part object), the root, the bracket and the cap, with the P2S profile embedded (`print_settings.config`).
+Open it, check the filaments map to your AMS slots (1 = main, 3 = the accent), and print. About 3 h.
+Rebuild it with `make print` after any change.
+
+- **The cap's supports are made to come off easily:** organic tree supports, 0.6 mm tips, 0.6 mm clear of the
+  part's sides, and a sparser interface. The other objects keep the project's supports, and the bracket has
+  none. Snap them off by hand; nothing needs cutting.
+
 - **Filament:** Ash Gray PLA (AMS slot 3).
 - **Pod, two pieces (recommended):** the round gauge and the root print separately, then glue
   together, so neither needs supports. Both STLs come already turned onto their print faces.

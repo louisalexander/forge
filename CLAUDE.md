@@ -28,6 +28,7 @@ cd trim-kit-case && make images   # README pictures -> img/*.png (render.scad)
 cd trim-kit-case && make check    # closed-halves overlap check -> .build/closed_check.stl
 cd lens-wipe-box && make
 cd desk-dial-pod && make && make test     # STLs; pytest geometry checks (tests/)
+cd desk-dial-pod && make print            # desk_dial_pod.3mf (pack_plate.py, cap supports per object)
 cd desk-dial-knob && make && make test     # STLs, each on its print face; pytest checks
 cd desk-accent-case && make               # stacked + side-by-side STLs
 cd <project> && make images               # README pictures -> img/*.png, in every project
