@@ -1,6 +1,8 @@
 # Desk dial knob
 
-<img src="img/assembly.png" width="380"> <img src="img/back.png" width="380">
+| The knob in its round head, on the neck and plate | From behind: the back cap and the plate |
+|---|---|
+| ![Knob and housing](img/assembly.png) | ![Knob housing from behind](img/back.png) |
 
 
 The Adafruit 5880 encoder and its knob, under the right side of the desk. A **round head** holds the knob

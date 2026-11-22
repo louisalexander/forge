@@ -23,4 +23,5 @@ edge so the LEDs light the stand plate below.
 
 ## 2026-11-21: moved to forge
 
-Moved from the private repo. `PART = "none"` was added so `render.scad` can draw its own coloured views.
+Moved from the private repo. `PART = "none"` was added to both variants so `render.scad` (stacked) and
+`render_sidebyside.scad` can draw their own coloured views.

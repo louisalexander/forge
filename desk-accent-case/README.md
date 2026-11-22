@@ -1,6 +1,8 @@
 # Desk accent case
 
-<img src="img/stacked.png" width="520">
+| Stacked (the current pick): body, carrier, lid and window | Side by side (the original brick) |
+|---|---|
+| ![Stacked case, parts laid out](img/stacked.png) | ![Side-by-side case, parts laid out](img/sidebyside.png) |
 
 A slim case for a XIAO ESP32S3 and an 8-LED WS2812B stick, stuck under the bottom edge of a monitor so the
 LEDs light the stand plate below through a frosted window. Rebuild the STLs with `make`, the pictures with `make

@@ -1,6 +1,8 @@
 # Desk dial pod
 
-<img src="img/round.png" width="380"> <img src="img/pod_back.png" width="380">
+| The round piece, face on (rose gold accent ring round the window) | The whole pod, from behind |
+|---|---|
+| ![Round piece with its accent ring](img/round.png) | ![The pod from behind](img/pod_back.png) |
 
 
 A round grey gauge (ø50.1, `face_shape = "gauge"`: the ø44.1 circle the screen sits in, with a 3 mm rim round it) that sits off the left edge of the Odyssey

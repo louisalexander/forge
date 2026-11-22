@@ -11,3 +11,4 @@ all:
 images:
 	mkdir -p img
 	$(OSC) --autocenter --viewall --imgsize=900,600 --camera=0,0,0,60,0,30,0 --colorscheme=Tomorrow -o img/stacked.png render.scad
+	$(OSC) --autocenter --viewall --imgsize=900,600 --camera=0,0,0,60,0,30,0 --colorscheme=Tomorrow -o img/sidebyside.png render_sidebyside.scad

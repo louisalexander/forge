@@ -116,6 +116,7 @@ module lid() {
 if (PART == "body") body();
 else if (PART == "lid") translate([0, 0, LID_T]) rotate([180, 0, 0]) lid();   // flat face on the bed
 else if (PART == "window") window();
+else if (PART == "none") {}   // render_sidebyside.scad draws its own dressed view
 else {
     body();
     translate([0, OUT_W + 8, hold_len]) lid();
