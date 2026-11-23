@@ -4,9 +4,9 @@
 |---|---|---|
 | ![Open-front honeycomb bin, three-quarter view](img/bin.png) | ![Three bins stacked, each one's front still open](img/stack.png) | ![Section through the rim: the lower bin's flange wraps the bin above](img/joint.png) |
 
-| The cold test piece |
-|---|
-| ![A small version of the same bin, for freezing before committing to the full print](img/cold_test.png) |
+| The cold test piece | The break-test corner |
+|---|---|
+| ![A small version of the same bin, for freezing before committing to the full print](img/cold_test.png) | ![A corner of the bin, for snapping to compare solid against perforated sides](img/break_test.png) |
 
 An open-front stackable storage bin with honeycomb walls and floor, sized to the biggest footprint
 a Bambu P2S bed will take. Stack them and the front of every bin stays open, so you can reach into
@@ -59,7 +59,8 @@ the overall goes back to 248.35 mm.
 
 | File | What it is |
 |---|---|
-| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **179 g, 7 h 30 m.** |
+| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **278 g, 7 h 25 m.** |
+| `freezer_bin_break_test_print.3mf` | Two corners to snap — solid sides and perforated sides. **41 g, 1 h 43 m.** |
 | `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **71 g, 2 h 30 m.** Print this one first. |
 
 Open either in Bambu Studio and slice — the plate, filament and process are already set. The
@@ -82,6 +83,42 @@ PETG is the right material for a freezer. It stiffens as it cools and stays usab
 where PLA turns brittle. Nothing in the design needs changing for the cold: both bins in a stack
 contract by the same ~0.7 mm over 246 mm, so a fit test done on the desk still holds in the
 freezer.
+
+## Why the sides are solid
+
+A test print snapped under hand force: a vertical honeycomb web parted clean across a **horizontal**
+fracture — perpendicular to the print Z, so it failed along a layer bond, which is this filament's
+weak direction at **20 MPa against 43 in X-Y**.
+
+| | |
+|---|---|
+| web cross-section | 1.8 × 2.4 = **4.3 mm²** |
+| force to part one web in Z | **~86 N** |
+
+86 N is about 9 kg through one web — a hand. The honeycomb is strong under distributed load, which
+is what a bin full of food applies, and weak under a point load, which is what a thumb applies.
+
+So the side walls are solid (`side_hex = false`) and the perforated field starts higher up the wall
+(`hex_base = 15`). The sides are the structural members — the deep beams carrying the front
+cantilever — and the part a hand grabs. The back and floor stay open, which is where the airflow
+matters.
+
+It costs **99 g**: 278 g against 179 g, because the sides are the two largest panels. If that is
+too much, `side_hex = true` with `hex_web = 3.0` is 208 g and roughly doubles the per-web force to
+144 N. `DESIGN.md` has the full table.
+
+## Break test
+
+Before committing to any of it, snap a corner. `freezer_bin_break_test_print.3mf` has two on one
+plate — solid sides and perforated sides — for **41 g and 1 h 43 m**.
+
+Each is the back corner, 64 × 64 × 71 mm, spanning the solid side wall, the corner, the start of
+the perforated back and the floor fillet. **Do not reorient them.** The failure was a layer-bond
+failure, so a piece broken in a different frame than it was printed in measures nothing — break
+them standing the way they came off the plate.
+
+What to do: hold the solid wall, push or twist the perforated back, and compare. The perforated-side
+one is the control; it is what broke. Note which web goes and roughly how hard you had to push.
 
 ## Cold test
 
@@ -144,6 +181,8 @@ Everything is at the top of `freezer_bin.scad`. The ones worth knowing:
 | `width`, `depth`, `height` | 200, 246, 150 | Outer body. `depth` is what the bed limits. |
 | `front_h`, `slope_run` | 50, 110 | The front lip, and how far back the sweep rises to full height. |
 | `front_curve` | `true` | The quarter-ellipse sweep. Set `false` for a straight diagonal. |
+| `side_hex` | `false` | Perforate the side walls too. `false` makes them solid — see below. |
+| `hex_base` | 15 | Extra solid wall below the perforated field, on top of `hex_margin`. |
 | `hex_af`, `hex_web` | 20.0, 1.8 | Wall cell size and the material between cells. **The main filament knob.** |
 | `hex_open` | `hex_af/8` | How hard the clipped grid is opened. Drops part-cells at panel edges instead of printing them as little offcuts; it has to scale with the cell. |
 | `floor_hex` | `true` | Perforate the floor. Turn off for a solid floor — costs about 47 g. |
@@ -165,11 +204,13 @@ the full table.
 
 | | Time | Weight |
 |---|---|---|
-| 0.20 mm layers, 16 mm cells, Spiral z-hop | 9 h 14 m | 186 g |
-| **0.24 mm layers, 20 mm cells, Normal z-hop** | **7 h 30 m** | **179 g** |
+| 0.20 mm layers, 16 mm cells, Spiral z-hop, honeycomb sides | 9 h 14 m | 186 g |
+| 0.24 mm layers, 20 mm cells, Normal z-hop, honeycomb sides | 7 h 30 m | 179 g |
+| **the above, with solid sides** | **7 h 25 m** | **278 g** |
 
-That is 1 h 44 m and 8 g, and it costs nothing structural — the margins barely move. Both the bin
-and the cold-test bins use it, which matters: a cold test on different geometry is not a test.
+The speed settings are free — 1 h 44 m and 8 g, and the margins barely move. The 99 g is the solid
+sides, a strength decision rather than a speed one. Every test piece uses the same settings as the
+bin, which matters: a test on different geometry is not a test.
 
 If you want the finer honeycomb back, `hex_af = 16` and the `0.20mm Standard @BBL P2S` process in
 `print_profile.py` return the old look for about 1 h 20 m.

@@ -532,3 +532,79 @@ Overhang cost checked: sub-45 surface goes 1.19% -> 2.00% of the wall band, and 
 below 30 mm/s 0.35% -> 0.95%. Both are the larger corner radii passing through shallow angles on
 their way round, they sit next to a bridge anchor, and both are far below the 11.7% / 5.05% that
 the pointy-top orientation cost before it was fixed.
+
+## 2026-11-23: a test print broke, and what it taught us
+
+First real print of the cold-test bin. Hand force snapped it.
+
+### What the photo shows
+
+A vertical honeycomb web, parted clean across a **horizontal** fracture plane. Horizontal means
+perpendicular to the print Z, so it failed along a layer bond, in the direction this filament is
+weakest. 3DFP's datasheet: **20 MPa in Z against 43 in X-Y**.
+
+The arithmetic nobody did until the part broke:
+
+| | |
+|---|---|
+| web cross-section | `hex_web` x `wall` = 1.8 x 2.4 = **4.32 mm2** |
+| force to part one web in Z | 4.32 x 20 = **~86 N** |
+
+86 N is about 9 kg pulled through one web, which is a hand.
+
+**This corrects the margin claimed earlier in this log.** The "0.32 MPa against 50 MPa, a 150x
+margin" figure divided the load by the *whole wall cross-section*, 310 mm2. That is right for a
+bin full of food, which spreads its weight over every web in the wall. It is meaningless for a
+thumb, which puts the entire load through one 4.32 mm2 web. Two different numbers, and the
+analysis quoted the flattering one. The honeycomb is strong in distributed load and weak in point
+load, and nothing above said so.
+
+### The fix
+
+Solid side walls, perforation on the back and floor only, and the perforated field starting
+higher up the wall:
+
+```
+side_hex = false;   // side walls solid
+hex_base = 15;      // extra solid wall below the perforated field
+```
+
+The reasoning holds up independently of the break: the side walls are the structural members --
+they are the 150 mm deep beams that carry the front cantilever -- and they are what a hand grabs.
+The back is a panel that holds food in. So the sides get strength and the back and floor keep the
+airflow, which is the reason the perforation is there.
+
+It is expensive: **277.74 g, 7 h 25 m**, against 178.76 g and 7 h 30 m. Ninety-nine grams, because
+the two side panels are the largest in the bin. Measured alternatives, all at 0.24 mm and 20 mm
+cells:
+
+| Sides | `hex_web` | Weight | Time | Force per web |
+|---|---|---|---|---|
+| honeycomb | 1.8 (what broke) | 196.8 g | 7 h 30 m | 86 N |
+| honeycomb | 2.4 | 202.6 g | 7 h 56 m | 115 N |
+| honeycomb | 3.0 | 207.9 g | 7 h 59 m | 144 N |
+| honeycomb, `hex_base=30` | 3.0 | 222.0 g | 7 h 55 m | 144 N |
+| **solid** | - | **277.7 g** | **7 h 25 m** | n/a |
+| solid, `wall=2.0` | - | 276.3 g | 6 h 34 m | n/a |
+
+Note that the back keeps 1.8 mm webs in every one of these, so an 86 N web survives in the solid
+version too -- just nowhere a hand normally goes.
+
+### Break test
+
+`part = "break_test"` is the back corner, 64 x 64 x 71 mm, **in its printed orientation**. That
+last part is the whole experiment: the failure was a layer-bond failure, so a piece broken in a
+different frame than it was printed in measures nothing.
+
+It spans the solid side wall, the corner, the start of the perforated back and the floor fillet,
+so the load path that failed is present end to end.
+
+A plain cube intersection was not enough. The cut slices straight through the honeycomb and leaves
+webs waving in mid-air -- unprintable, and nothing like the real panel, where every web is anchored
+to a solid margin. `bin()` is now split into `shell()` (no holes) and the perforations, so the test
+piece can borrow `shell()` for a 4 mm solid rib down its two cut faces. That is what the real bin
+has, and it makes the test honest.
+
+`make freezer_bin_break_test_print.3mf` puts both versions on one plate -- solid sides and
+perforated sides -- for **40.69 g and 1 h 43 m**, so the fix and the control can be snapped
+back to back.

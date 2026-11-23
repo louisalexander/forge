@@ -1,7 +1,7 @@
 // README images (make images): same look as the other projects in this repo.
 use <freezer_bin.scad>
 
-view = "bin";          // bin | stack | joint
+view = "bin";          // bin | stack | joint | break
 
 $fn = 48;
 
@@ -22,6 +22,8 @@ module joint_clip() {
 }
 
 if (view == "bin") color(body) bin();
+
+if (view == "break") color(body) break_test();
 
 if (view == "stack")
     for (i = [0 : 2])

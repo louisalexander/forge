@@ -62,6 +62,14 @@ collar_lead = 1.2;    // lead-in chamfer at the top of the flange
 hex_af      = 20.0;   // across the flats
 hex_web     = 1.8;    // material between holes
 hex_margin  = 8.0;    // solid border round each perforated panel
+
+// A printed web is a stack of layers, so its weak plane is horizontal and it parts in Z, where
+// this filament is 20 MPa against 43 in X-Y. A 1.8 x 2.4 web is 4.3 mm2, so one lets go at about
+// 86 N -- fine for a bin full of food, which spreads load over the whole wall, but a thumb puts
+// all of it through a single web. A test print duly snapped one. So: the sides, which are the
+// structural members and the part you grab, are solid; the back and floor stay open for airflow.
+side_hex    = false;  // perforate the side walls too
+hex_base    = 15;     // extra solid wall below the perforated field, on top of hex_margin
 // How hard to "open" the clipped grid. Part-cells narrower than twice this are dropped rather
 // than printed as slivers, and it is what stops a panel edge filling with little round offcuts.
 // It has to scale with the cell: a 1 mm open that was ample at 9 mm cells leaves debris at 20.
@@ -195,7 +203,8 @@ module hex_grid(w, h, af = hex_af, web = hex_web) {
 // Side wall silhouette in (y, z), inset by hex_margin.
 module side_panel() {
     offset(-hex_margin) intersection() {
-        translate([y_front + corner_r, floor_t]) square([depth - 2 * corner_r, height - floor_t]);
+        translate([y_front + corner_r, floor_t + hex_base])
+            square([depth - 2 * corner_r, height - floor_t - hex_base]);
         polygon(concat([[y_front - 30,   -30],
                         [depth / 2 + 30, -30],
                         [depth / 2 + 30, height]],
@@ -214,7 +223,8 @@ module front_panel() {
 // Back wall silhouette in (x, z), inset by hex_margin.
 module back_panel() {
     offset(-hex_margin)
-        translate([-width / 2 + corner_r, floor_t]) square([width - 2 * corner_r, height - floor_t]);
+        translate([-width / 2 + corner_r, floor_t + hex_base])
+            square([width - 2 * corner_r, height - floor_t - hex_base]);
 }
 
 // Clip the grid to a panel, then open it (erode, dilate) so part-hexes at the edge drop out
@@ -227,7 +237,7 @@ module perforation(w, h, open = hex_open) {
 }
 
 module hex_cuts() {
-    yz_extrude(width + 40) perforation(depth, height) side_panel();
+    if (side_hex) yz_extrude(width + 40) perforation(depth, height) side_panel();
     translate([0, depth / 2 - wall / 2, 0])
         xz_extrude(wall + 6) perforation(width, height) back_panel();
 
@@ -286,7 +296,9 @@ module collar_solid() {
     }
 }
 
-module bin() {
+// The bin with no holes in it. Split out so the break test can borrow it for the solid rib that
+// anchors its cut edges.
+module shell() {
     difference() {
         union() { outer_solid(); collar_solid(); lip_rail(); }
 
@@ -301,6 +313,12 @@ module bin() {
         }
 
         top_wedge();
+    }
+}
+
+module bin() {
+    difference() {
+        shell();
         hex_cuts();
         if (label_w > 0 && label_h > 0) label_recess();
     }
@@ -332,11 +350,40 @@ module stack_test_bottom() {
     }
 }
 
+// Back corner, floor to mid-wall, in the orientation it prints in. The point of this one is to
+// be broken: the first test print snapped a honeycomb web clean across a layer line, which is the
+// Z direction and this filament's weak axis. Layer direction is the whole experiment, so the
+// piece must not be rotated -- break it in the frame it was printed in or it tells you nothing.
+//
+// It spans the solid side wall, the corner, the start of the perforated back and the floor
+// fillet, so the load path that failed is all present. Build it both ways and break both:
+//   make freezer_bin_break_test.stl             solid sides (the fix)
+//   make freezer_bin_break_test_hexside.stl     perforated sides (what broke)
+bt_rib = 4;   // solid rib left along the cut edges
+module break_test() {
+    org = [width / 2 - 62, depth / 2 - 62, -1];
+    box = [64, 64, 71];
+    union() {
+        intersection() { bin(); translate(org) cube(box); }
+        // The cut slices straight through the honeycomb, which would leave webs waving in mid-air:
+        // unprintable, and nothing like the real panel, where every web is anchored to a solid
+        // margin. So the two inner cut faces keep a solid rib, which is what the real bin has.
+        intersection() {
+            shell();
+            union() {
+                translate(org) cube([bt_rib, box[1], box[2]]);
+                translate(org) cube([box[0], bt_rib, box[2]]);
+            }
+        }
+    }
+}
+
 // ---- part switch ------------------------------------------------------------
 
-part = "bin";    // bin | stack_check | stack_test_top | stack_test_bottom | none
+part = "bin";    // bin | stack_check | stack_test_top | stack_test_bottom | break_test | none
 
 if (part == "bin")                    bin();
 else if (part == "stack_check")       stack_check();
 else if (part == "stack_test_top")    stack_test_top();
 else if (part == "stack_test_bottom") stack_test_bottom();
+else if (part == "break_test")        break_test();

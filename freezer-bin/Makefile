@@ -9,13 +9,22 @@ freezer_bin.stl: $(SCAD)
 
 # Fit tests: the back-right corner of the rim and of the floor, each in its printed orientation.
 # Print one of each and check that the top piece's flange takes the bottom piece without slop.
-tests: freezer_bin_stack_test_top.stl freezer_bin_stack_test_bottom.stl freezer_bin_cold_test.stl
+tests: freezer_bin_stack_test_top.stl freezer_bin_stack_test_bottom.stl freezer_bin_cold_test.stl \
+       freezer_bin_break_test.stl freezer_bin_break_test_hexside.stl
 
 freezer_bin_stack_test_top.stl: $(SCAD)
 	$(SC) -D 'part="stack_test_top"' -o $@ $<
 
 freezer_bin_stack_test_bottom.stl: $(SCAD)
 	$(SC) -D 'part="stack_test_bottom"' -o $@ $<
+
+# Break test: the back corner in its printed orientation, built both ways so you can snap one of
+# each and compare. See README.
+freezer_bin_break_test.stl: $(SCAD)
+	$(SC) -D 'part="break_test"' -o $@ $<
+
+freezer_bin_break_test_hexside.stl: $(SCAD)
+	$(SC) -D 'part="break_test"' -D side_hex=true -o $@ $<
 
 # Cold test: a small bin with every feature at full size. Print two, load them, freeze them,
 # then try the stack, the rail and the walls cold. See README.
@@ -44,11 +53,16 @@ BAMBU ?= /Applications/BambuStudio.app/Contents/MacOS/BambuStudio
 		--export-3mf seed.3mf freezer_bin_stack_test_top.stl > .build/print/seed.log 2>&1
 	python3 print_profile.py --project .build/print/seed/seed.3mf $@
 
-print: freezer_bin_print.3mf freezer_bin_cold_test_print.3mf
+print: freezer_bin_print.3mf freezer_bin_cold_test_print.3mf freezer_bin_break_test_print.3mf
 
 freezer_bin_print.3mf: freezer_bin.stl .build/print/project_settings.config pack_plate.py
 	python3 pack_plate.py $@ --machine .build/print/machine.json \
 		--settings .build/print/project_settings.config freezer_bin.stl
+
+freezer_bin_break_test_print.3mf: freezer_bin_break_test.stl freezer_bin_break_test_hexside.stl .build/print/project_settings.config pack_plate.py
+	python3 pack_plate.py $@ --machine .build/print/machine.json \
+		--settings .build/print/project_settings.config \
+		freezer_bin_break_test.stl freezer_bin_break_test_hexside.stl
 
 freezer_bin_cold_test_print.3mf: freezer_bin_cold_test.stl .build/print/project_settings.config pack_plate.py
 	python3 pack_plate.py $@ --machine .build/print/machine.json \
@@ -56,7 +70,7 @@ freezer_bin_cold_test_print.3mf: freezer_bin_cold_test.stl .build/print/project_
 		freezer_bin_cold_test.stl freezer_bin_cold_test.stl
 
 # README images
-images: img/bin.png img/stack.png img/joint.png img/cold_test.png
+images: img/bin.png img/stack.png img/joint.png img/cold_test.png img/break_test.png
 IMG = $(SC) --render --colorscheme=Tomorrow --viewall --autocenter
 
 img/bin.png: render.scad $(SCAD)
@@ -74,6 +88,10 @@ img/joint.png: render.scad $(SCAD)
 img/cold_test.png: render.scad $(SCAD)
 	@mkdir -p img
 	$(IMG) -D cold_test=true -D 'view="bin"' --camera=0,0,0,64,0,28,0 --imgsize=760,660 -o $@ $<
+
+img/break_test.png: render.scad $(SCAD)
+	@mkdir -p img
+	$(IMG) -D 'view="break"' --camera=0,0,0,62,0,212,0 --imgsize=760,660 -o $@ $<
 
 clean:
 	rm -f *.stl *.3mf
