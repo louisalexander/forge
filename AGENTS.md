@@ -31,6 +31,8 @@ cd desk-dial-pod && make && make test     # STLs; pytest geometry checks (tests/
 cd desk-dial-pod && make print            # desk_dial_pod.3mf (pack_plate.py, cap supports per object)
 cd desk-dial-knob && make && make test     # STLs, each on its print face; pytest checks
 cd desk-accent-case && make               # stacked + side-by-side STLs
+cd freezer-bin && make && make check      # STLs, print 3MFs, cold test; stacking interference check
+cd freezer-bin && make print              # freezer_bin_print.3mf (SUNLU PETG 2.0 @ P2S)
 cd <project> && make images               # README pictures -> img/*.png, in every project
 openscad --backend=manifold -D 'part="lid"' -o out.stl trim_case.scad   # any single part
 ```
