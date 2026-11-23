@@ -552,6 +552,24 @@ module back_hole() {              // board + plug go in together from the back; 
     translate([0, 0, -pod_depth - 1]) linear_extrude(pod_depth + 1 + cap_inner_z + 0.01) board_2d();
     translate([0, 0, -pod_depth - 1]) linear_extrude(pod_depth + 1 + shallow_z + 0.01) shallow_2d();   // the cap fills it
     translate([0, 0, -pod_depth - 1]) linear_extrude(pod_depth + 1 + plug_cap_z + 0.01) plug_2d();
+    tab_bridge(0);
+}
+// The wall between the plug pocket and the screen bore, beside the neck where the keyhole's rectangle meets its
+// circle, left a wedge-shaped slot between the cap's tab and its round part (owner, 2026-11-22: the tab snapped
+// off there). Through the cap's thickness only (up to plug_cap_z) that wall is cut out of the root and the cap
+// fills it, so the tab joins the round part along the plug's whole length (~23 mm, was ~13). The round piece
+// keeps its sliver of the wall (shell_outer is left alone), so only the root and the cap change.
+module tab_bridge_2d(g = 0) {
+    translate([usb_mouth_x - 0.5 - g, adp_bot_y - adp_fit - g]) square([cx - usb_mouth_x + 0.5 + 2 * g, adp_len + 2 * adp_fit + 2 * g]);
+}
+module tab_bridge(c) {            // c > 0: the cap's (shrunk by c, and c off the round piece); 0: the root's cut
+    difference() {
+        translate([0, 0, -pod_depth - 1]) linear_extrude(pod_depth + 1 + plug_cap_z + (c > 0 ? 0 : 0.01)) tab_bridge_2d(-c);
+        difference() {            // the round shell, except where the cap already is (the board circle)
+            shell_outer(c);
+            translate([0, 0, -pod_depth - 2]) linear_extrude(pod_depth + 2 + plug_cap_z + 1) board_2d(-c);
+        }
+    }
 }
 module cap_footprint_solid(c) {   // the opening's own volume, shrunk by the fit clearance
     difference() {
@@ -562,6 +580,7 @@ module cap_footprint_solid(c) {   // the opening's own volume, shrunk by the fit
         translate([0, 0, plug_cap_z]) linear_extrude(50) plug_2d(c);     // thin over the plug
     }
     translate([0, 0, -pod_depth - 1]) linear_extrude(pod_depth + 1 + plug_cap_z) plug_2d(-c);
+    tab_bridge(c);
 }
 module screw_holes() {            // clearance through post + cap, and a counterbore for the head from the back
     for (h = mount_holes) translate([bpt(h)[0], h[1], 0]) {
@@ -576,11 +595,24 @@ module pry_undercut() {           // into the cap's edge, behind a lip at its ba
     translate([cx - pry_w / 2, -board_d / 2 - 1, -pod_depth + pry_lip]) cube([pry_w, pry_hook + 1, pry_hook_h]);
 }
 assert(pry_lip + pry_hook_h <= pry_slot_d, "the blade can't reach the undercut: it ends forward of the rim slot");
+// Over the tab's joint the pod's outside dips: the root's rounded outboard back
+// edge meets the round shell's receding dome in a valley deeper than the tab is thick (2.8 mm). Trimmed to
+// that outside, the cap was cut nearly through there and the tab snapped off when the supports came off
+// (owner, 2026-11-22). The cap fills that valley, along the tab's whole length, with the hull of the outside
+// there: the tab keeps its full thickness into the round part. The fill never goes behind the back plane.
+cap_joint_x = [usb_mouth_x - 3, usb_mouth_x + 9];   // the valley, across the joint (x)
+module cap_joint_fill() {
+    y0 = adp_bot_y - adp_fit - 1;  y1 = adp_top_y + adp_fit + 1;
+    hull() intersection() {
+        outer_solid();
+        translate([cap_joint_x[0], y0, -pod_depth - 1]) cube([cap_joint_x[1] - cap_joint_x[0], y1 - y0, pod_depth + 1 + plug_cap_z]);
+    }
+}
 module cap() {                    // closes the back flush with the pod's own curve, and carries the screen:
     // the board screws onto its three posts, so cap + screen come out as one unit
     difference() {
         union() {
-            intersection() { outer_solid(); cap_footprint_solid(cap_clearance); }
+            intersection() { union() { outer_solid(); cap_joint_fill(); } cap_footprint_solid(cap_clearance); }
             for (h = mount_holes) translate([bpt(h)[0], h[1], cap_inner_z - 0.01])
                 cylinder(d = post_od, h = standoff_top_z - cap_inner_z + 0.01, $fn = 32);
         }
@@ -764,6 +796,8 @@ else if (part == "cap_x_pod")      intersection() { cap(); pod(); }
 // the face's lip in front of the glass: must NOT be empty, it is what stops the screen
 else if (part == "glass_x_face")   intersection() { pod(); translate([cx, 0, -face_t - 0.01]) cylinder(d = glass_d, h = face_t + 0.02); }
 // the cap over the plug only (the part outside the board circle), for its thickness
+// the cap across the tab's joint with the round part (x in the valley, through the tab's thickness): must be solid
+else if (part == "cap_tab_joint")  intersection() { cap(); translate([usb_mouth_x + 1, -20, -pod_depth - 1]) cube([1, 40, pod_depth + 1 + plug_cap_z]); }
 else if (part == "cap_plug_tab")   intersection() { cap(); translate([0, 0, -50]) linear_extrude(100) difference() { plug_2d(); board_2d(); } }
 // the plug pocket runs behind the dovetail slot: keep a 0.8 mm wall between them
 else if (part == "plug_slot_wall") intersection() { plug_cavity(0.8); slot(); }

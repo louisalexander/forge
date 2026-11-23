@@ -141,6 +141,17 @@ def test_the_cap_tab_over_the_plug_is_not_a_wafer(tmp_path):
     assert hi[2] - lo[2] >= 2.5
 
 
+def test_the_cap_tab_is_joined_to_the_round_part(tmp_path):
+    # the tab snapped off taking the supports off (owner, 2026-11-22): the pod's outside dips into a valley over
+    # the joint, and the cap trimmed to it had NOTHING in a 1 mm slice across the joint; beside the ~13 mm neck,
+    # a wall of the root left a slot. Now the slice runs the plug's whole length at nearly the tab's thickness
+    joint = render("cap_tab_joint", tmp_path)
+    assert joint is not None
+    assert _volume(joint) > 45
+    lo, hi = bbox(joint)
+    assert hi[1] - lo[1] >= 22
+
+
 def test_assembly_never_enters_the_monitor(tmp_path):
     assert no_interference("assembly_x_monitor", tmp_path)
 

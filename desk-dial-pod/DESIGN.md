@@ -55,3 +55,27 @@ coupons. Final values:
 
 The coupons are now optional, only for re-tuning on different hardware.
 
+## 2026-11-22: the cap's tab joined solidly to the round part
+
+The tab over the USB-C plug kept snapping off where it meets the round part, when the supports came off.
+Two things weakened that joint:
+- **A valley in the outside.** The cap is trimmed to the pod's outside shape, and right over the joint the
+  outside dips: the root's rounded outboard back edge (`root_round = 2`, at `root_x1`) meets the round shell's
+  receding dome in a valley deeper than the tab is thick (`plug_cap_z` to the back, 2.8 mm). A 1 mm slice of
+  the old cap across the joint was empty: the tab hung on by a sliver.
+- **A short neck.** The tab met the round part only where the keyhole's plug rectangle overlaps the board
+  circle (about 13 mm in y). Beside that, a wall of the root (between the plug pocket and the screen bore)
+  left a wedge-shaped slot between the tab and the round part.
+
+Fix:
+- `cap_joint_fill()`: the cap fills the valley with the hull of the outside over the joint
+  (`cap_joint_x = [usb_mouth_x - 3, usb_mouth_x + 9]`, the plug's whole y range, up to `plug_cap_z`). The fill
+  never goes behind the back plane.
+- `tab_bridge()` / `tab_bridge_2d()`: through the cap's thickness only (up to `plug_cap_z`), the wall is cut
+  out of the root and the cap fills the slot. It stays off `shell_outer`, so the round piece is unchanged
+  (same volume, 10490.79 mm³) and keeps its ~1 mm sliver of the wall at the slot's far corner. The root
+  loses 41 mm³, and its wall now ends square instead of in a thin curved fin.
+
+New check `cap_tab_joint`: a 1 mm slice across the joint must hold more than 45 mm³ over at least 22 mm. It
+measures 72 mm³ over 27 mm (the old cap had nothing there). All 59 tests pass and the print file slices
+(2 h 59 min). Reprint the root and the cap together; the new cap does not fit an old root.

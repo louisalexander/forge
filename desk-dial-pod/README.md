@@ -52,7 +52,7 @@ make images     # the README pictures (render.scad)
 
 The checks prove that nothing touches the monitor's panel, the face is flush, the face is the
 ø44.1 screen seat plus a 3 mm rim, the face's lip still holds the glass from the front, the cap's tab over
-the USB-C plug is at least 2.5 mm thick, the bracket lip stays 2 mm off the glass, every cavity keeps a wall, and the board fits
+the USB-C plug is at least 2.5 mm thick and joined solidly to the round part, the bracket lip stays 2 mm off the glass, every cavity keeps a wall, and the board fits
 in from the back. They also check the screen mount: the screw holes match the measured triangle,
 each cap post lands on its brass standoff, the cap and pod clear everything on the board's back
 (XIAO, USB-C, coin-cell holder), the screws pass freely, and a screw long enough to reach the
@@ -108,6 +108,10 @@ Rebuild it with `make print` after any change.
 - **The cap's supports are made to come off easily:** organic tree supports, 0.6 mm tips, 0.6 mm clear of the
   part's sides, and a sparser interface. The other objects keep the project's supports, and the bracket has
   none. Snap them off by hand; nothing needs cutting.
+- **The cap's tab is joined right across:** an earlier cap had a near-through groove and a slot where the tab
+  over the plug meets the round part, and the tab snapped off there. The current cap is solid along the tab's
+  whole edge. That took the last 2.8 mm of a wall out of the root's back, so a new cap needs the matching new
+  root (the round piece is unchanged).
 
 - **Filament:** Ash Gray PLA (AMS slot 3).
 - **Pod, two pieces (recommended):** the round gauge and the root print separately, then glue
