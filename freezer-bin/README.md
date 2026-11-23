@@ -59,16 +59,20 @@ the overall goes back to 248.35 mm.
 
 | File | What it is |
 |---|---|
-| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **186 g, 9 h 14 m.** |
-| `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **71 g, 3 h 6 m.** Print this one first. |
+| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **181 g, 8 h 50 m.** |
+| `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **69 g, 2 h 59 m.** Print this one first. |
 
 Open either in Bambu Studio and slice — the plate, filament and process are already set. The
-filament profile is called **SUNLU PETG 2.0 @BBL P2S 0.4 nozzle**: 245 °C nozzle (250 first
-layer), 70 °C textured plate, 0.95 flow, 12 mm³/s volumetric cap, 1.27 g/cm³. Bambu ships a SUNLU
-PETG profile but only for the A1, A1M and X1C and nothing for PETG 2.0, so this takes the P2S
-PETG profile for the machine-specific values that have to be right and lays SUNLU's own material
-numbers over it. `make print` rebuilds both files; `print_profile.py` has every value and its
-reason.
+filament profile is **SUNLU PETG 2.0 @BBL P2S 0.4 nozzle**: 245 °C nozzle (250 first layer),
+70 °C textured plate, 0.96 flow, **17.8 mm³/s** volumetric cap, 1.22 g/cm³, part fan 40–90% with
+100% on bridges. Those are calibration figures for this exact filament from
+[3dfilamentprofiles.com](https://3dfilamentprofiles.com), not a vendor range — Bambu ships a
+SUNLU PETG profile only for the A1/A1M/X1C and nothing for PETG 2.0. `make print` rebuilds both
+files; `print_profile.py` has every value and its reason.
+
+**Dry the filament first** — 65 °C for 12 h. This part travels 660 m and makes about 170,000
+retractions, so it is unusually good at showing up damp PETG as stringing, and strings inside a
+honeycomb cannot be cleaned out.
 
 If you would rather set it up yourself: 0.20 mm Standard, textured PEI, **no brim**, no supports.
 Everything else is the system default — see `DESIGN.md` for the settings that were tried,
@@ -81,8 +85,8 @@ freezer.
 
 ## Cold test
 
-Before committing 186 g and nine hours, freeze a small one. `freezer_bin_cold_test.stl` is
-**94.7 × 65.35 × 76 mm**; two of them are 71 g and about three hours, and
+Before committing 181 g and nine hours, freeze a small one. `freezer_bin_cold_test.stl` is
+**94.7 × 65.35 × 76 mm**; two of them are 69 g and about three hours, and
 `freezer_bin_cold_test_print.3mf` has both on a plate ready to slice.
 
 It is not a scale model. Everything that decides whether this survives −21 °C is left at full
@@ -149,11 +153,30 @@ Everything is at the top of `freezer_bin.scad`. The ones worth knowing:
 | `label_w`, `label_h` | 40, 30 | Label pocket. Set `label_w = 0` for a plain front. |
 | `cold_test` | `false` | `true` shrinks the box to the 95 × 65 × 76 test piece, features unchanged. |
 
-The weights above are in SUNLU PETG at 1.27 g/cm³. Bambu PETG Matte is filled and runs 1.37, so
-the same bin in that filament is about 201 g rather than 186 g — same plastic, denser filament.
+The weights above are in SUNLU PETG 2.0 at 1.22 g/cm³. Density moves with pigment, and a filled
+filament moves it a lot — the same bin in Bambu PETG Matte (1.37) is about 203 g. Same plastic,
+denser filament.
+
+### Making it print faster
+
+Measured, not guessed; `DESIGN.md` has the full table and the reasoning.
+
+| Change | Time | Cost |
+|---|---|---|
+| default | 8 h 50 m | — |
+| 0.24 mm layers | 7 h 49 m | coarser Z steps |
+| `hex_af = 20` | 8 h 18 m | bigger cells, 6 g lighter |
+| both, plus Normal z-hop | **7 h 13 m** | the above together |
+
+Two that look obvious and do nothing: arc fitting saves 30 seconds, and raising the volumetric
+cap is worth 26 minutes even taken to 20 mm³/s. The print is bound by layer count and travel, not
+by flow — 45% of head motion is travel between honeycomb loops.
+
+A 0.6 nozzle gets to about 6 h 40 m, but only if you also drop `hex_web` to 1.24; a straight swap
+costs 21 g because a 0.62 mm line cannot render a 1.8 mm web.
 
 Cell size is worth understanding before you print several. At the original 9 mm cell with a solid
-floor the bin is a **295 g, 13 h 32 m** print; the defaults make it **186 g, 9 h 14 m**. `DESIGN.md`
+floor the bin is a **295 g, 13 h 32 m** print; the defaults make it **181 g, 8 h 50 m**. `DESIGN.md`
 has the sliced weight of every combination tried.
 
 Two details are load-bearing rather than decorative, and `DESIGN.md` has the measurements behind

@@ -406,3 +406,92 @@ offsetting each plate in one global coordinate space, and the stride is not in t
 above it sliced. Since the correct value could not be established and the GUI's placement cannot
 be checked headlessly, one plate per file is the honest answer -- both slice cleanly from the CLI
 with every embedded setting verified in the G-code.
+
+## 2026-11-23: real filament data, and what actually makes this print faster
+
+### 3DFP numbers for SUNLU PETG 2.0
+
+Replaced the guesswork in `print_profile.py` with community calibration data from
+3dfilamentprofiles.com for this exact filament. The site rate-limits automated fetches (HTTP 429),
+so the figures came from the page directly.
+
+| | 3DFP | was using | source of the old value |
+|---|---|---|---|
+| max volumetric speed | **17.8 mm3/s** | 12 | Bambu's generic SUNLU PETG |
+| flow ratio | **0.96** | 0.95 | same |
+| density | **1.22 g/cm3** | 1.27 | same |
+| nozzle | 240-270 | 245 | kept at 245, see below |
+| bed | 70-80 | 70 | confirmed |
+| part fan | 40-90% | 30/10 | **changed** |
+| bridge fan | 100% | 90 | **changed** |
+| fan off for | 0-3 layers | 1 | **changed to 3** |
+| dry | 65 C for 12 h | - | added to the README |
+
+Density is 3DFP's figure for the colour they tested (Blush Pink); pigment moves it, so another
+colour will not weigh exactly the same. The weight change from 186 g to 181 g is this, not less
+plastic.
+
+Nozzle stays at the bottom of the 240-270 range on purpose. This part makes ~170,000 retractions
+and stringing is its biggest quality risk, while its stress margins are enormous. If the cold test
+cracks *along* layer lines rather than through them, 255-260 is the lever: hotter buys Z strength
+and costs stringing.
+
+The manufacturer datasheet 3DFP carries is worth recording against the structural work above:
+
+| | X-Y | Z |
+|---|---|---|
+| tensile strength | 43 MPa | 20 MPa |
+| flexural strength | 70 MPa | 35 MPa |
+| flexural modulus | 1900 MPa | 1650 MPa |
+| elongation at break | 12% | 8% |
+| Izod notched | 4 kJ/m2 | |
+
+Tg 83 C, HDT 71 C at 0.45 MPa. Two things follow. The floor-sag calculation used E = 2100 MPa and
+the real flexural modulus is 1900, so the ~1.4 mm estimate becomes ~1.55 mm -- no change to the
+conclusion. And **Z strength is under half of X-Y**, so the margins should be read against 20 MPa
+rather than 50: the weakest wall plane carries 0.32 MPa, which is still a 60x margin.
+
+### What makes it faster, measured
+
+Every row is a real slice of the real STL. Baseline is the 3DFP profile: **180.97 g, 8 h 50 m**.
+
+| Change | Time | Saving | Weight |
+|---|---|---|---|
+| 0.24 mm layers | 7 h 49 m | **-1 h 02** | 181.1 g |
+| 20 mm cells (`hex_af=20`) | 8 h 18 m | -32 m | 174.7 g |
+| z-hop Normal instead of Spiral | 8 h 42 m | -9 m | 181.0 g |
+| 0.24 mm + 20 mm cells | 7 h 20 m | -1 h 30 | 174.9 g |
+| **all three** | **7 h 13 m** | **-1 h 37** | **174.9 g** |
+| all three + `wall=2.0` | 6 h 47 m | -2 h 04 | 169.2 g |
+
+And two that looked obvious and are not:
+
+| Change | Result |
+|---|---|
+| `enable_arc_fitting = 1` | **30 seconds.** Nothing. |
+| raising the volumetric cap 12 -> 20 | only 26 min |
+
+**Why:** this print is layer-count-bound and travel-bound, not flow-bound. Of 8 h 50 m, only about
+3.4 h is extrusion at the cap -- the rest is travel (660 m, 45% of all head motion), ~170,000
+retractions, and 780 layer changes. So layer height dominates, coarser cells pay twice (less
+travel *and* less material), and the flow cap barely matters. That last point is worth keeping:
+chasing a higher volumetric number is nearly pointless on a part shaped like this one.
+
+### 0.6 nozzle
+
+Asked and measured, same filament profile and flow cap for fairness:
+
+| Setup | Weight | Time |
+|---|---|---|
+| 0.4 / 0.20 mm | 186.4 g | 9 h 14 m |
+| 0.6 / 0.30 mm, design unchanged | 207.1 g | 7 h 02 m |
+| 0.6 / 0.30 mm, `hex_web=1.24` | 196.0 g | 6 h 40 m |
+| 0.6 / 0.30 mm, `hex_web=1.24` + `floor_hex_web=1.86` | 186.6 g | 6 h 48 m |
+| 0.6 / 0.30 mm, `hex_web=1.24` + `hex_af=20` | 190.6 g | 6 h 23 m |
+
+A straight swap costs 21 g: a 0.62 mm line cannot render a 1.8 mm web finely, so every thin
+feature fattens. Aligning the geometry to line-width multiples makes it *worse* (1.86 webs ->
+208 g). The fix is the other direction -- let the webs be two lines instead of three.
+
+Worth knowing: the software-and-geometry route gets to 7 h 13 m on the 0.4 for nothing, which is
+most of what the 0.6 buys.

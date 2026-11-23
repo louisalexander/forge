@@ -45,33 +45,49 @@ PROCESS_SET = {
 #   seam_position = aligned    already the system default.
 MACHINE_SET = {}   # the filament profile already asks for Spiral Lift z-hop
 
-# SUNLU's own numbers, taken from the SUNLU PETG profile Bambu ships, except where noted.
-# Density 1.27 is real unfilled PETG; Bambu PETG Matte is 1.37 because it is filled, which is why
-# this prints lighter than any figure quoted against that profile.
+# Measured numbers for this exact filament from 3dfilamentprofiles.com (3DFP), which are
+# community calibration results rather than a vendor range, so they win over both Bambu's generic
+# SUNLU PETG profile and SUNLU's own marketing spread. Anything 3DFP does not cover is noted.
+#
+# 3DFP also gives the manufacturer datasheet, which is worth having next to the design:
+#   tensile   43 MPa X-Y / 20 MPa Z      flexural  70 / 35 MPa
+#   modulus  500 MPa X-Y / 300 MPa Z     flexural modulus 1900 / 1650 MPa
+#   elongation at break 12% X-Y / 8% Z   Izod notched 4 kJ/m^2
+#   Tg 83 C, HDT 71 C at 0.45 MPa, softening 70 C
+# Z strength is under half of X-Y, so the honeycomb's load paths matter: see DESIGN.md.
 FILAMENT_SET = {
     "filament_vendor": "SUNLU",
-    "filament_density": "1.27",
+    # 1.22 is 3DFP's figure for the colour they tested (Blush Pink). Pigment moves this a little,
+    # so a different colour will not weigh exactly the same.
+    "filament_density": "1.22",
     "filament_cost": "22.99",
-    "filament_flow_ratio": "0.95",
-    "filament_max_volumetric_speed": "12",      # SUNLU's limit, below Bambu PETG's 13-15
+    "filament_flow_ratio": "0.96",
+    "filament_max_volumetric_speed": "17.8",    # 3DFP measured; Bambu's generic SUNLU says 12
+    # 3DFP range is 240-270. Staying at the bottom: this part makes ~170,000 retractions and
+    # stringing is its biggest quality risk, while its stress margins are enormous (0.3 MPa of
+    # working stress against 20 MPa in the weak Z direction). If the cold test cracks along layer
+    # lines rather than through them, 255-260 is the lever -- hotter buys Z strength at the cost
+    # of more stringing.
     "nozzle_temperature": "245",
     "nozzle_temperature_initial_layer": "250",
-    "nozzle_temperature_range_low": "230",
+    "nozzle_temperature_range_low": "240",
     "nozzle_temperature_range_high": "270",
-    # SUNLU publishes 70-80 C for the bed; Bambu's SUNLU profile says 60. 70 is the low end of the
-    # vendor range and the safer one: PETG on textured PEI can bond hard enough to damage the
-    # sheet. A 200 x 246 part with no brim wants the adhesion, so not lower. Drop to 60 if it
-    # grips too well when cold.
+    # 3DFP bed range is 70-80, which confirms 70. Low end on purpose: PETG on textured PEI can
+    # bond hard enough to damage the sheet.
     "hot_plate_temp": "70",
     "hot_plate_temp_initial_layer": "70",
     "textured_plate_temp": "70",
     "textured_plate_temp_initial_layer": "70",
-    "fan_max_speed": "30",                      # PETG: less fan than Bambu's 60/30
-    "fan_min_speed": "10",
-    "overhang_fan_speed": "90",                 # but full fan on the hex roofs, which all bridge
+    "fan_min_speed": "40",                      # 3DFP: 40-90%, against Bambu's 30/10 for SUNLU
+    "fan_max_speed": "90",
+    "overhang_fan_speed": "100",                # 3DFP bridge fan 100%, and every hex roof bridges
     "overhang_fan_threshold": "10%",
+    "close_fan_the_first_x_layers": "3",        # 3DFP: fan off for the first 0-3 layers
     "slow_down_layer_time": "12",
 }
+
+# 3DFP also says: dry at 65 C for 12 h. Worth doing. Wet PETG strings, and this part travels
+# 660 m with ~170,000 retractions, so it is the print most able to show it.
 
 
 def load(kind, name, sub=""):
