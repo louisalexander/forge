@@ -608,3 +608,36 @@ has, and it makes the test honest.
 `make freezer_bin_break_test_print.3mf` puts both versions on one plate -- solid sides and
 perforated sides -- for **40.69 g and 1 h 43 m**, so the fix and the control can be snapped
 back to back.
+
+## 2026-11-23: does the whole side need to be solid?
+
+Probably not, and the broken piece overstated the case.
+
+What broke was the **cold-test bin**, whose side panel is about 28 x 50 mm after margins -- call it
+three cells. A thumb on that loads one web almost directly. The full-size bin's side panel is about
+214 x 130 mm and carries some 45 cells, on a panel far more compliant, so the same poke spreads
+over many webs and the panel deflects instead of concentrating. The test piece is a pessimistic
+proxy for this failure mode, which is worth knowing before paying 99 g to fix it.
+
+So `side_margin` now sets the solid frame around the side panel's honeycomb, separately from
+`hex_margin`. Because `side_panel()` applies it to the already-swept silhouette, the frame follows
+the swept top edge and the rim: material lands where the panel meets the rest of the bin and along
+the edge a hand actually holds, and the middle stays open. It also shortens the panel's span, and
+panel bending stress under a point load goes roughly with span squared -- 8 mm to 22 mm takes the
+short span from 115 to 87 mm, about 43% less stress for the same poke.
+
+| Sides | Weight | Time | vs solid |
+|---|---|---|---|
+| honeycomb, `side_margin = 8` (what broke) | 196.8 g | 7 h 30 m | -81 g |
+| honeycomb, `side_margin = 22` | 222.3 g | 7 h 34 m | -56 g |
+| honeycomb, `side_margin = 22`, `hex_web = 3.0` | 234.2 g | 7 h 51 m | -44 g |
+| honeycomb, `side_margin = 35` | 245.0 g | 7 h 31 m | -33 g |
+| honeycomb, `side_margin = 35`, `hex_web = 3.0` | 253.3 g | 7 h 47 m | -25 g |
+| **solid** | **277.7 g** | 7 h 26 m | - |
+
+The savings are real but not dramatic, because the side panels are the biggest surfaces on the bin
+and a 22 mm frame already eats a good share of one.
+
+`side_hex = false` stays the default for now, on the grounds that it is the one option known to be
+safe. The break-test plate now prints solid against framed honeycomb rather than against the
+original -- the original is already broken and sitting on the bench, so it needs no reprint.

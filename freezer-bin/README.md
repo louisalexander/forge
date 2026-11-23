@@ -60,7 +60,7 @@ the overall goes back to 248.35 mm.
 | File | What it is |
 |---|---|
 | `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **278 g, 7 h 25 m.** |
-| `freezer_bin_break_test_print.3mf` | Two corners to snap — solid sides and perforated sides. **41 g, 1 h 43 m.** |
+| `freezer_bin_break_test_print.3mf` | Two corners to snap — solid sides and framed-honeycomb sides. **42 g, 1 h 43 m.** |
 | `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **71 g, 2 h 30 m.** Print this one first. |
 
 Open either in Bambu Studio and slice — the plate, filament and process are already set. The
@@ -103,9 +103,29 @@ So the side walls are solid (`side_hex = false`) and the perforated field starts
 cantilever — and the part a hand grabs. The back and floor stay open, which is where the airflow
 matters.
 
-It costs **99 g**: 278 g against 179 g, because the sides are the two largest panels. If that is
-too much, `side_hex = true` with `hex_web = 3.0` is 208 g and roughly doubles the per-web force to
-144 N. `DESIGN.md` has the full table.
+It costs **99 g**: 278 g against 179 g, because the sides are the two largest panels.
+
+**The whole side probably does not need to be solid.** The piece that broke was the cold-test bin,
+whose side panel is only about 28 × 50 mm — roughly three cells. A thumb there loads one web
+directly. The real bin's side panel is about 214 × 130 mm and holds some 45 cells, so the same
+poke spreads across many webs on a far more compliant panel. The test piece is a pessimistic proxy
+for this particular failure.
+
+So `side_hex = true` keeps the honeycomb, and `side_margin` sets a wide solid frame around it. The
+frame follows the swept top edge and the rim, putting material where the panel meets the rest of
+the bin and along the edge a hand holds, while leaving the middle open. It also shortens the
+panel's span, so a poke deflects it less.
+
+| Sides | Weight | vs solid |
+|---|---|---|
+| honeycomb, `side_margin = 8` (what broke) | 197 g | −81 g |
+| honeycomb, `side_margin = 22` | 222 g | −56 g |
+| honeycomb, `side_margin = 22`, `hex_web = 3.0` | 234 g | −44 g |
+| honeycomb, `side_margin = 35` | 245 g | −33 g |
+| **solid** (default) | **278 g** | — |
+
+Solid is the default only because it is the one option known to be safe. Print the break test and
+decide — `DESIGN.md` has the per-web arithmetic.
 
 ## Break test
 

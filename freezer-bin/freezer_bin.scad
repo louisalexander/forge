@@ -69,6 +69,11 @@ hex_margin  = 8.0;    // solid border round each perforated panel
 // all of it through a single web. A test print duly snapped one. So: the sides, which are the
 // structural members and the part you grab, are solid; the back and floor stay open for airflow.
 side_hex    = false;  // perforate the side walls too
+// Width of the solid frame around the side panel's honeycomb. It follows the swept top edge and
+// the rim, so widening it puts material exactly where the panel meets the rest of the bin and
+// along the edge a hand holds, while leaving the middle open. A wider frame also shortens the
+// panel's span, and a poke deflects it less for the same force.
+side_margin = 22;     // only used when side_hex is on
 hex_base    = 15;     // extra solid wall below the perforated field, on top of hex_margin
 // How hard to "open" the clipped grid. Part-cells narrower than twice this are dropped rather
 // than printed as slivers, and it is what stops a panel edge filling with little round offcuts.
@@ -202,7 +207,7 @@ module hex_grid(w, h, af = hex_af, web = hex_web) {
 
 // Side wall silhouette in (y, z), inset by hex_margin.
 module side_panel() {
-    offset(-hex_margin) intersection() {
+    offset(-side_margin) intersection() {
         translate([y_front + corner_r, floor_t + hex_base])
             square([depth - 2 * corner_r, height - floor_t - hex_base]);
         polygon(concat([[y_front - 30,   -30],
