@@ -59,9 +59,13 @@ collar_lead = 1.2;    // lead-in chamfer at the top of the flange
 // ---- honeycomb --------------------------------------------------------------
 // Cell size is the main filament knob. At 9/2.4 the bin is a 295 g print; the values below
 // make it 202 g. See DESIGN.md for the sliced weight of each combination.
-hex_af      = 16.0;   // across the flats
+hex_af      = 20.0;   // across the flats
 hex_web     = 1.8;    // material between holes
 hex_margin  = 8.0;    // solid border round each perforated panel
+// How hard to "open" the clipped grid. Part-cells narrower than twice this are dropped rather
+// than printed as slivers, and it is what stops a panel edge filling with little round offcuts.
+// It has to scale with the cell: a 1 mm open that was ample at 9 mm cells leaves debris at 20.
+hex_open    = hex_af / 8;
 
 // The floor is the single heaviest panel, so it is perforated too. Its webs are thicker and
 // its cells smaller than the walls': it carries the load, and less falls through.
@@ -215,7 +219,7 @@ module back_panel() {
 
 // Clip the grid to a panel, then open it (erode, dilate) so part-hexes at the edge drop out
 // instead of printing as slivers. It also rounds the hex corners, which extrudes more cleanly.
-module perforation(w, h, open = 1.0) {
+module perforation(w, h, open = hex_open) {
     offset(r = open, $fn = 12) offset(r = -open, $fn = 12) intersection() {
         translate([0, height / 2]) hex_grid(w, h);
         children();
@@ -234,7 +238,7 @@ module hex_cuts() {
     // Floor: holes straight down the Z axis, so they need no overhang care at all.
     if (floor_hex)
         translate([0, 0, -1]) linear_extrude(floor_t + 2)
-            offset(r = 1.0, $fn = 12) offset(r = -1.0, $fn = 12) intersection() {
+            offset(r = floor_hex_af / 8, $fn = 12) offset(r = -floor_hex_af / 8, $fn = 12) intersection() {
                 hex_grid(width, depth, floor_hex_af, floor_hex_web);
                 footprint(-wall - floor_margin);
             }

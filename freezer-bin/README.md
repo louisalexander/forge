@@ -59,8 +59,8 @@ the overall goes back to 248.35 mm.
 
 | File | What it is |
 |---|---|
-| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **181 g, 8 h 50 m.** |
-| `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **69 g, 2 h 59 m.** Print this one first. |
+| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **179 g, 7 h 30 m.** |
+| `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **71 g, 2 h 30 m.** Print this one first. |
 
 Open either in Bambu Studio and slice — the plate, filament and process are already set. The
 filament profile is **SUNLU PETG 2.0 @BBL P2S 0.4 nozzle**: 245 °C nozzle (250 first layer),
@@ -85,8 +85,8 @@ freezer.
 
 ## Cold test
 
-Before committing 181 g and nine hours, freeze a small one. `freezer_bin_cold_test.stl` is
-**94.7 × 65.35 × 76 mm**; two of them are 69 g and about three hours, and
+Before committing 179 g and seven and a half hours, freeze a small one. `freezer_bin_cold_test.stl`
+is **94.7 × 65.35 × 76 mm**; two of them are 71 g and about two and a half hours, and
 `freezer_bin_cold_test_print.3mf` has both on a plate ready to slice.
 
 It is not a scale model. Everything that decides whether this survives −21 °C is left at full
@@ -144,7 +144,8 @@ Everything is at the top of `freezer_bin.scad`. The ones worth knowing:
 | `width`, `depth`, `height` | 200, 246, 150 | Outer body. `depth` is what the bed limits. |
 | `front_h`, `slope_run` | 50, 110 | The front lip, and how far back the sweep rises to full height. |
 | `front_curve` | `true` | The quarter-ellipse sweep. Set `false` for a straight diagonal. |
-| `hex_af`, `hex_web` | 16.0, 1.8 | Wall cell size and the material between cells. **The main filament knob.** |
+| `hex_af`, `hex_web` | 20.0, 1.8 | Wall cell size and the material between cells. **The main filament knob.** |
+| `hex_open` | `hex_af/8` | How hard the clipped grid is opened. Drops part-cells at panel edges instead of printing them as little offcuts; it has to scale with the cell. |
 | `floor_hex` | `true` | Perforate the floor. Turn off for a solid floor — costs about 47 g. |
 | `front_hex` | `false` | Perforate the front lip too. Saves about 12 g and loses the label face. |
 | `stack_clear` | 0.35 | Flange to the bin above, per side. |
@@ -157,34 +158,29 @@ The weights above are in SUNLU PETG 2.0 at 1.22 g/cm³. Density moves with pigme
 filament moves it a lot — the same bin in Bambu PETG Matte (1.37) is about 203 g. Same plastic,
 denser filament.
 
-### Making it print faster
+### Speed, and what is already in the defaults
 
-Measured, not guessed; `DESIGN.md` has the full table and the reasoning.
+The defaults are the fast ones. Everything below was measured on the real part; `DESIGN.md` has
+the full table.
 
-| Change | Time | Cost |
+| | Time | Weight |
 |---|---|---|
-| default | 8 h 50 m | — |
-| 0.24 mm layers | 7 h 49 m | coarser Z steps |
-| `hex_af = 20` | 8 h 18 m | bigger cells, 6 g lighter |
-| both, plus Normal z-hop | **7 h 13 m** | the above together |
+| 0.20 mm layers, 16 mm cells, Spiral z-hop | 9 h 14 m | 186 g |
+| **0.24 mm layers, 20 mm cells, Normal z-hop** | **7 h 30 m** | **179 g** |
 
-Two that look obvious and do nothing: arc fitting saves 30 seconds, and raising the volumetric
-cap is worth 26 minutes even taken to 20 mm³/s. The print is bound by layer count and travel, not
-by flow — 45% of head motion is travel between honeycomb loops.
+That is 1 h 44 m and 8 g, and it costs nothing structural — the margins barely move. Both the bin
+and the cold-test bins use it, which matters: a cold test on different geometry is not a test.
 
-A 0.6 nozzle gets to about 6 h 40 m, but only if you also drop `hex_web` to 1.24; a straight swap
+If you want the finer honeycomb back, `hex_af = 16` and the `0.20mm Standard @BBL P2S` process in
+`print_profile.py` return the old look for about 1 h 20 m.
+
+Two levers that look obvious and are not: arc fitting saves **30 seconds**, and raising the
+volumetric cap is worth 26 minutes even taken to 20 mm³/s. This print is bound by layer count and
+travel, not by flow — 45% of head motion is travel between honeycomb loops, which is why layer
+height dominates and coarser cells pay twice.
+
+A 0.6 nozzle reaches about 6 h 40 m, but only if you also drop `hex_web` to 1.24; a straight swap
 costs 21 g because a 0.62 mm line cannot render a 1.8 mm web.
-
-Cell size is worth understanding before you print several. At the original 9 mm cell with a solid
-floor the bin is a **295 g, 13 h 32 m** print; the defaults make it **181 g, 8 h 50 m**. `DESIGN.md`
-has the sliced weight of every combination tried.
-
-Two details are load-bearing rather than decorative, and `DESIGN.md` has the measurements behind
-both. The cells are **flat-topped**: turned the other way up their roofs fall to 30° from
-horizontal, which put 11.7% of the wall surface into overhang and dropped 22 m of extrusion to the
-slicer's 10 mm/s unsupported speed. And the floor-to-wall **fillet** replaces a sharp internal
-corner that would otherwise be the highest-stressed line in the part — which matters because cold
-PETG is notch-sensitive.
 
 ## Build
 

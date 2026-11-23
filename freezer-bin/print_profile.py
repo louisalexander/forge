@@ -20,7 +20,7 @@ import sys
 
 PROFILES = "/Applications/BambuStudio.app/Contents/Resources/profiles/BBL"
 MACHINE = "Bambu Lab P2S 0.4 nozzle"
-PROCESS = "0.20mm Standard @BBL P2S"
+PROCESS = "0.24mm Standard @BBL P2S"
 FILAMENT = "Bambu PETG Matte @BBL P2S 0.4 nozzle"   # skeleton: P2S-specific PETG keys
 FILAMENT_NAME = "SUNLU PETG 2.0 @BBL P2S 0.4 nozzle"
 
@@ -84,6 +84,9 @@ FILAMENT_SET = {
     "overhang_fan_threshold": "10%",
     "close_fan_the_first_x_layers": "3",        # 3DFP: fan off for the first 0-3 layers
     "slow_down_layer_time": "12",
+    # Normal Lift instead of the Spiral Lift the Bambu PETG skeleton asks for: worth 9 minutes
+    # over ~170,000 travels, and a straight lift clears a honeycomb wall just as well.
+    "filament_z_hop_types": "Normal Lift",
 }
 
 # 3DFP also says: dry at 65 C for 12 h. Worth doing. Wet PETG strings, and this part travels

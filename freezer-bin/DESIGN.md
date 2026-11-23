@@ -495,3 +495,40 @@ feature fattens. Aligning the geometry to line-width multiples makes it *worse* 
 
 Worth knowing: the software-and-geometry route gets to 7 h 13 m on the 0.4 for nothing, which is
 most of what the 0.6 buys.
+
+## 2026-11-23: the fast settings become the defaults
+
+Applied the measured speed work to the design and to **both** print files. The cold-test bins
+matter here: they are only a test if they are the same object, so they take every change.
+
+| | was | now |
+|---|---|---|
+| layer height | 0.20 mm | **0.24 mm** (`0.24mm Standard @BBL P2S`) |
+| wall cells `hex_af` | 16 | **20** |
+| z-hop | Spiral Lift | **Normal Lift** |
+
+**178.76 g, 7 h 30 m 29 s, 650 layers**, from 186.42 g and 9 h 14 m: 1 h 44 m and 7.7 g. The
+cold-test plate goes to 71.39 g and 2 h 29 m. Margins barely move -- the weakest wall plane was
+carrying 0.32 MPa against 20 MPa in the weak direction.
+
+### Opening has to scale with the cell
+
+Going to 20 mm cells exposed a latent bug. `perforation()` opened the clipped grid with a fixed
+`offset(1.0)`, which drops part-cells narrower than 2 mm. That was ample at 9 mm cells and is not
+at 20: the small panels of the cold-test bin came out ringed with little round offcuts -- genus 48
+where about 22 whole cells were expected, so roughly two dozen pieces of debris. The full-size bin
+mostly got away with it because its panels are large enough that few cells are clipped.
+
+`hex_open = hex_af / 8` now scales it (2.5 mm at the current cell), and the floor uses
+`floor_hex_af / 8` to match. Cold-test genus drops 48 -> 38 and its back panel comes out as six
+clean hexagons.
+
+It is not free: rounder cell corners mean less open area, so the bin went 174.90 -> 178.76 g and
+7 h 13 m -> 7 h 30 m. Worth it. The debris was ugly, and on the test piece it was actively
+misleading -- stress risers the real bin does not have would have cracked first and told us
+nothing. Rounder corners also suit cold PETG, which starts cracks at sharp ones.
+
+Overhang cost checked: sub-45 surface goes 1.19% -> 2.00% of the wall band, and extrusion at or
+below 30 mm/s 0.35% -> 0.95%. Both are the larger corner radii passing through shallow angles on
+their way round, they sit next to a bridge anchor, and both are far below the 11.7% / 5.05% that
+the pointy-top orientation cost before it was fixed.
