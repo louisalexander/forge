@@ -641,3 +641,72 @@ and a 22 mm frame already eats a good share of one.
 `side_hex = false` stays the default for now, on the grounds that it is the one option known to be
 safe. The break-test plate now prints solid against framed honeycomb rather than against the
 original -- the original is already broken and sitting on the bench, so it needs no reprint.
+
+## 2026-11-23: thicker webs, and why the orientation stays
+
+### Webs: 1.8 -> 3.6
+
+Hands-on verdict was that the hex material itself snaps too easily. It does. A wall web is a stack
+of layers, so it parts in Z at 20 MPa:
+
+| `hex_web` | section | force to part one |
+|---|---|---|
+| 1.8 (broke) | 4.32 mm2 | 86 N |
+| 3.0 | 7.20 mm2 | 144 N |
+| **3.6** | **8.64 mm2** | **173 N** |
+
+Taken to **3.6**, double the original. With solid sides it is nearly free -- **277.74 -> 283.48 g,
+under 6 g** -- because once the sides are solid the only honeycomb left in a wall is the back, and
+it is a small share of the bin. Framed honeycomb sides with the same webs come in at 237.94 g, which
+is 40 g *below* today's default and twice as strong per web; the break test will say whether that
+is enough.
+
+### Layer bonding: the lever from two entries ago, pulled
+
+That entry said "if the cold test cracks along layer lines rather than through them, 255-260 is the
+lever". It cracked along layer lines. So:
+
+| | was | now | why |
+|---|---|---|---|
+| nozzle | 245 | **260** | near the top of 3DFP's 240-270; PETG layer bonding is strongly temperature-dependent, and Z is the direction it failed in |
+| part fan | 40-90% | **10-30%** | part cooling is what kills PETG layer bonding. Layer times here are 30-96 s, so it cools fine unaided |
+| bridge fan | 100% | 100% | unchanged -- the hex roofs still need it, and it is targeted |
+
+The price is stringing over ~170,000 retractions. Dry the filament and look the first one over.
+
+### Orientation: no, and it would not help anyway
+
+Asked whether rotating the print would fix it. It would not, for three reasons.
+
+**It is already the cheapest orientation.** The bin is 204.7 x 251.35 x 156. Bottom-down puts the
+*smallest* dimension on Z: 650 layers. On its side is 854, on its back 1046 -- 30 to 60% more
+layers and time, for a part that is already layer-count-bound.
+
+**It would need supports.** Every overhang decision in this design assumes this orientation: the
+flat-top cells, the 38-degree flare, the floor fillet, the grab rail. Rotate it and the honeycomb
+needs support inside the cells, which is not something you get back out of a honeycomb.
+
+**And it does not remove the weakness, it moves it.** A box has walls in three orthogonal planes
+and only one plane can lie parallel to the build layers. Whichever way it is turned, two of the
+three wall directions end up as vertical walls whose webs cross layer bonds. Lay it on its back to
+strengthen the back panel and the sides become the weak ones.
+
+The floor is the proof. It is the one panel already lying in the layer plane, so its webs are
+loaded in-plane at 43 MPa rather than across layers at 20:
+
+| | section | force |
+|---|---|---|
+| floor web, 2.6 x 4.0 | 10.4 mm2 at 43 MPa | **447 N** |
+| wall web, 3.6 x 2.4 | 8.64 mm2 at 20 MPa | 173 N |
+| wall web, 1.8 x 2.4 (broke) | 4.32 mm2 at 20 MPa | 86 N |
+
+A floor web is five times a wall web of the original thickness, and the floor is not what broke.
+That is the whole orientation argument in one table: the panel in the layer plane is fine, and
+only one panel can be.
+
+The fixes that do work are the ones above -- more material in the web, and a better bond between
+layers.
+
+### Now
+
+**283.48 g, 7 h 36 m.** Cold-test plate 82.32 g / 2 h 24 m, break-test plate 43.44 g / 1 h 44 m.

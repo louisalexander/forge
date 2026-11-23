@@ -59,8 +59,8 @@ the overall goes back to 248.35 mm.
 
 | File | What it is |
 |---|---|
-| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **278 g, 7 h 25 m.** |
-| `freezer_bin_break_test_print.3mf` | Two corners to snap — solid sides and framed-honeycomb sides. **42 g, 1 h 43 m.** |
+| `freezer_bin_print.3mf` | The bin, placed, with the P2S / SUNLU PETG 2.0 profile embedded. **283 g, 7 h 36 m.** |
+| `freezer_bin_break_test_print.3mf` | Two corners to snap — solid sides and framed-honeycomb sides. **43 g, 1 h 44 m.** |
 | `freezer_bin_cold_test_print.3mf` | Two cold-test bins on one plate. **71 g, 2 h 30 m.** Print this one first. |
 
 Open either in Bambu Studio and slice — the plate, filament and process are already set. The
@@ -90,16 +90,17 @@ A test print snapped under hand force: a vertical honeycomb web parted clean acr
 fracture — perpendicular to the print Z, so it failed along a layer bond, which is this filament's
 weak direction at **20 MPa against 43 in X-Y**.
 
-| | |
-|---|---|
-| web cross-section | 1.8 × 2.4 = **4.3 mm²** |
-| force to part one web in Z | **~86 N** |
+| `hex_web` | section | force to part one web in Z |
+|---|---|---|
+| 1.8 (what broke) | 4.3 mm² | ~86 N |
+| **3.6 (now)** | **8.6 mm²** | **~173 N** |
 
 86 N is about 9 kg through one web — a hand. The honeycomb is strong under distributed load, which
 is what a bin full of food applies, and weak under a point load, which is what a thumb applies.
 
-So the side walls are solid (`side_hex = false`) and the perforated field starts higher up the wall
-(`hex_base = 15`). The sides are the structural members — the deep beams carrying the front
+So the webs are **3.6 mm** instead of 1.8, which doubles the force one takes and costs under 6 g
+once the sides are solid. The side walls are solid (`side_hex = false`) and the perforated field
+starts higher up the wall (`hex_base = 15`). The sides are the structural members — the deep beams carrying the front
 cantilever — and the part a hand grabs. The back and floor stay open, which is where the airflow
 matters.
 
@@ -122,7 +123,7 @@ panel's span, so a poke deflects it less.
 | honeycomb, `side_margin = 22` | 222 g | −56 g |
 | honeycomb, `side_margin = 22`, `hex_web = 3.0` | 234 g | −44 g |
 | honeycomb, `side_margin = 35` | 245 g | −33 g |
-| **solid** (default) | **278 g** | — |
+| **solid** (default) | **283 g** | — |
 
 Solid is the default only because it is the one option known to be safe. Print the break test and
 decide — `DESIGN.md` has the per-web arithmetic.
@@ -203,7 +204,7 @@ Everything is at the top of `freezer_bin.scad`. The ones worth knowing:
 | `front_curve` | `true` | The quarter-ellipse sweep. Set `false` for a straight diagonal. |
 | `side_hex` | `false` | Perforate the side walls too. `false` makes them solid — see below. |
 | `hex_base` | 15 | Extra solid wall below the perforated field, on top of `hex_margin`. |
-| `hex_af`, `hex_web` | 20.0, 1.8 | Wall cell size and the material between cells. **The main filament knob.** |
+| `hex_af`, `hex_web` | 20.0, 3.6 | Wall cell size and the material between cells. **The main filament knob.** |
 | `hex_open` | `hex_af/8` | How hard the clipped grid is opened. Drops part-cells at panel edges instead of printing them as little offcuts; it has to scale with the cell. |
 | `floor_hex` | `true` | Perforate the floor. Turn off for a solid floor — costs about 47 g. |
 | `front_hex` | `false` | Perforate the front lip too. Saves about 12 g and loses the label face. |
@@ -226,7 +227,7 @@ the full table.
 |---|---|---|
 | 0.20 mm layers, 16 mm cells, Spiral z-hop, honeycomb sides | 9 h 14 m | 186 g |
 | 0.24 mm layers, 20 mm cells, Normal z-hop, honeycomb sides | 7 h 30 m | 179 g |
-| **the above, with solid sides** | **7 h 25 m** | **278 g** |
+| **the above, solid sides and 3.6 mm webs** | **7 h 36 m** | **283 g** |
 
 The speed settings are free — 1 h 44 m and 8 g, and the margins barely move. The 99 g is the solid
 sides, a strength decision rather than a speed one. Every test piece uses the same settings as the
@@ -254,3 +255,27 @@ make print      # the two Bambu Studio 3MFs (needs Bambu Studio)
 
 openscad --backend=manifold -D 'part="bin"' -o out.stl freezer_bin.scad   # any single part
 ```
+
+## Why it prints bottom-down
+
+Rotating the print does not help, and the floor shows why.
+
+The bin is 204.7 × 251.35 × 156 mm, so bottom-down puts the **smallest** dimension on Z: 650
+layers, against 854 on its side and 1046 on its back. It is also the only orientation that needs
+no supports — the flat-top cells, the 38° flare, the floor fillet and the grab rail were all chosen
+for it, and support inside a honeycomb does not come back out.
+
+More fundamentally, a rotation moves the weakness rather than removing it. A box has walls in three
+orthogonal planes and only one plane can lie parallel to the build layers, so two of the three wall
+directions will always be vertical walls whose webs cross layer bonds. Lay it on its back to
+strengthen the back and the sides become the weak ones.
+
+The floor is the panel that already lies in the layer plane, and it is not what breaks:
+
+| | section | force |
+|---|---|---|
+| floor web, 2.6 × 4.0, loaded in-plane at 43 MPa | 10.4 mm² | **447 N** |
+| wall web, 3.6 × 2.4, loaded across layers at 20 MPa | 8.6 mm² | 173 N |
+
+The fixes that work are more material in the web, and a better bond between layers — a hotter
+nozzle and less part cooling, both of which are in the profile.

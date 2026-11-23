@@ -63,13 +63,13 @@ FILAMENT_SET = {
     "filament_cost": "22.99",
     "filament_flow_ratio": "0.96",
     "filament_max_volumetric_speed": "17.8",    # 3DFP measured; Bambu's generic SUNLU says 12
-    # 3DFP range is 240-270. Staying at the bottom: this part makes ~170,000 retractions and
-    # stringing is its biggest quality risk, while its stress margins are enormous (0.3 MPa of
-    # working stress against 20 MPa in the weak Z direction). If the cold test cracks along layer
-    # lines rather than through them, 255-260 is the lever -- hotter buys Z strength at the cost
-    # of more stringing.
-    "nozzle_temperature": "245",
-    "nozzle_temperature_initial_layer": "250",
+    # 3DFP range is 240-270, and this now sits near the top of it. The earlier note here said
+    # "if the cold test cracks along layer lines, 255-260 is the lever" -- it did exactly that, so
+    # the lever is pulled. Hotter means markedly better layer bonding, which is the direction the
+    # part actually failed in. The price is stringing, over ~170,000 retractions, so dry the
+    # filament and expect to look the first print over.
+    "nozzle_temperature": "260",
+    "nozzle_temperature_initial_layer": "260",
     "nozzle_temperature_range_low": "240",
     "nozzle_temperature_range_high": "270",
     # 3DFP bed range is 70-80, which confirms 70. Low end on purpose: PETG on textured PEI can
@@ -78,8 +78,11 @@ FILAMENT_SET = {
     "hot_plate_temp_initial_layer": "70",
     "textured_plate_temp": "70",
     "textured_plate_temp_initial_layer": "70",
-    "fan_min_speed": "40",                      # 3DFP: 40-90%, against Bambu's 30/10 for SUNLU
-    "fan_max_speed": "90",
+    # Dropped well under 3DFP's 40-90%. Part cooling is what kills PETG layer bonding, and a
+    # test print failed along a layer bond. Layer times here are 30-96 s, so the part has ample
+    # time to cool on its own; the bridges keep their own 100% fan below.
+    "fan_min_speed": "10",
+    "fan_max_speed": "30",
     "overhang_fan_speed": "100",                # 3DFP bridge fan 100%, and every hex roof bridges
     "overhang_fan_threshold": "10%",
     "close_fan_the_first_x_layers": "3",        # 3DFP: fan off for the first 0-3 layers

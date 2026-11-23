@@ -60,7 +60,11 @@ collar_lead = 1.2;    // lead-in chamfer at the top of the flange
 // Cell size is the main filament knob. At 9/2.4 the bin is a 295 g print; the values below
 // make it 202 g. See DESIGN.md for the sliced weight of each combination.
 hex_af      = 20.0;   // across the flats
-hex_web     = 1.8;    // material between holes
+hex_web     = 3.6;    // material between holes. A wall web is a stack of layers and parts in Z
+                      // at 20 MPa, so 3.6 x 2.4 = 8.6 mm2 lets go at about 173 N, twice what
+                      // 1.8 managed -- and with solid sides it costs 6 g, because the only
+                      // honeycomb left in a wall is the back. Floor webs lie IN the layer
+                      // plane and get 43 MPa, which is why the floor is not what breaks.
 hex_margin  = 8.0;    // solid border round each perforated panel
 
 // A printed web is a stack of layers, so its weak plane is horizontal and it parts in Z, where
