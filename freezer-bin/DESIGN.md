@@ -710,3 +710,61 @@ layers.
 ### Now
 
 **283.48 g, 7 h 36 m.** Cold-test plate 82.32 g / 2 h 24 m, break-test plate 43.44 g / 1 h 44 m.
+
+## 2026-11-23: wall thickness against floor thickness
+
+They are not interchangeable, because they carry load under different laws.
+
+| | what governs it | law |
+|---|---|---|
+| `wall` | web tension **across** layers, 20 MPa | strength is **linear** in thickness |
+| `floor_t` | plate bending | sag goes as **1/t^3** |
+
+Measured against the 283.47 g default, everything else unchanged:
+
+| Change | Weight | Buys |
+|---|---|---|
+| `hex_web` 3.6 -> 4.5 | **+2.9 g** | web 173 -> 216 N, **14.8 N per gram** |
+| `wall` 2.4 -> 3.0 | +6.0 g | web 173 -> 216 N, **7.2 N per gram**, plus stiffer panels, lip and rim |
+| `floor_t` 4.0 -> 4.8 | +7.8 g | floor sag -42% |
+| `floor_t` 4.0 -> 3.2 | -9.7 g | floor sag +95% |
+| `floor_hex_web` 2.6 -> 3.4 | +7.2 g | floor web 447 -> 585 N |
+
+**The floor is already in the right place.** It lies in the layer plane, so it works at 43 MPa
+rather than 20; its webs are 447 N against a wall web's 173; and it is not what broke. Thinning it
+saves 10 g and nearly doubles the sag, which the cube law makes a poor trade. Thickening it is
+available if it ever feels springy under a load, but nothing says it does.
+
+**For the failure we actually have, `hex_web` beats `wall` two to one per gram.** The wall is
+everywhere -- including the two large solid side panels -- while the webs exist only in the back.
+Buying web section through `wall` means paying for it over the whole bin.
+
+### The wall is not solid, and that moves the numbers
+
+Reading the toolpaths: **18.77% of the wall-zone extrusion is sparse infill.** Two perimeters fill
+1.74 mm of the 2.4 mm wall and the remaining 0.66 mm gets 15% infill.
+
+For the **solid side panels this is fine, and arguably good**: they are loaded in bending, where
+material near the neutral axis contributes almost nothing. A sparse core there is a sandwich panel,
+not a defect.
+
+For the **webs it is not fine.** A web is loaded in near-uniform tension across layers, where area
+is area and a hollow core counts against you in full. So the honest web figure is **about 130 N,
+not the 173 N quoted in the entry above** -- that number assumed a solid section and the section
+is not solid.
+
+The options, measured:
+
+| | Weight | Web, real | Note |
+|---|---|---|---|
+| `wall = 1.76` (exactly 4 lines) | 257.6 g | ~127 N | everything solid, 26 g saved, but panels lose 61% of their bending stiffness |
+| **`wall = 2.4`, 2 loops (now)** | **283.5 g** | **~130 N** | 18.8% sparse |
+| `wall = 2.4`, `wall_loops = 3` | 331.4 g | 173 N | 0.34% sparse: genuinely solid, for 48 g |
+
+Note the first and second lines: the current wall buys almost no real web strength over a wall
+that is 0.64 mm thinner, because the extra thickness lands in the hollow core. What it does buy is
+panel stiffness, which is why it stays.
+
+**Nothing changed here yet.** The break test is printing, and if the corners hold then none of this
+needs spending. If the back honeycomb still snaps, `hex_web` is the cheap lever at 14.8 N/g and
+`wall_loops = 3` is the complete-but-expensive one at 48 g.

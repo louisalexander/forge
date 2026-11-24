@@ -61,10 +61,12 @@ collar_lead = 1.2;    // lead-in chamfer at the top of the flange
 // make it 202 g. See DESIGN.md for the sliced weight of each combination.
 hex_af      = 20.0;   // across the flats
 hex_web     = 3.6;    // material between holes. A wall web is a stack of layers and parts in Z
-                      // at 20 MPa, so 3.6 x 2.4 = 8.6 mm2 lets go at about 173 N, twice what
+                      // at 20 MPa, so 3.6 x 2.4 = 8.6 mm2 is about 173 N on paper, twice what
                       // 1.8 managed -- and with solid sides it costs 6 g, because the only
-                      // honeycomb left in a wall is the back. Floor webs lie IN the layer
-                      // plane and get 43 MPa, which is why the floor is not what breaks.
+                      // honeycomb left in a wall is the back. Call it ~130 N in practice: two
+                      // perimeters fill 1.74 of the 2.4 mm wall and the rest is sparse infill
+                      // (see DESIGN.md). Floor webs lie IN the layer plane and get 43 MPa, which
+                      // is why the floor is not what breaks.
 hex_margin  = 8.0;    // solid border round each perforated panel
 
 // A printed web is a stack of layers, so its weak plane is horizontal and it parts in Z, where

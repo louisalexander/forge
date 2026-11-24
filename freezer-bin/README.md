@@ -93,7 +93,12 @@ weak direction at **20 MPa against 43 in X-Y**.
 | `hex_web` | section | force to part one web in Z |
 |---|---|---|
 | 1.8 (what broke) | 4.3 mm² | ~86 N |
-| **3.6 (now)** | **8.6 mm²** | **~173 N** |
+| **3.6 (now)** | **8.6 mm²** | **~173 N on paper, ~130 N real** |
+
+The gap is because the wall is not solid: two perimeters fill 1.74 mm of the 2.4 mm, and the
+rest is sparse infill. In the solid side panels that is fine — they work in bending, where a
+core near the neutral axis does little, so it is a sandwich rather than a defect. In a web it
+counts, because a web is loaded in near-uniform tension. `wall_loops = 3` closes it for 48 g.
 
 86 N is about 9 kg through one web — a hand. The honeycomb is strong under distributed load, which
 is what a bin full of food applies, and weak under a point load, which is what a thumb applies.
@@ -279,3 +284,20 @@ The floor is the panel that already lies in the layer plane, and it is not what 
 
 The fixes that work are more material in the web, and a better bond between layers — a hotter
 nozzle and less part cooling, both of which are in the profile.
+
+### Wall thickness against floor thickness
+
+They answer to different laws, so they are not interchangeable: wall strength is **linear** in
+thickness (web tension across layers), while floor sag goes as **1/t³** (plate bending).
+
+| Change | Weight | Buys |
+|---|---|---|
+| `hex_web` 3.6 → 4.5 | **+2.9 g** | +25% web strength — **14.8 N per gram** |
+| `wall` 2.4 → 3.0 | +6.0 g | +25% web strength — 7.2 N per gram, plus stiffer panels and rim |
+| `floor_t` 4.0 → 4.8 | +7.8 g | floor sag −42% |
+| `floor_t` 4.0 → 3.2 | −9.7 g | floor sag +95% |
+
+The floor is already where it should be — it is in the layer plane at 43 MPa, its webs are 447 N
+against a wall web's 173, and it is not what broke. Thinning it saves 10 g and nearly doubles the
+sag. For strength, `hex_web` is twice as efficient as `wall`, because the wall is everywhere while
+the webs are only in the back panel.
